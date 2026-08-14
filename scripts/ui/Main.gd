@@ -1,23 +1,27 @@
 extends Control
 
-@onready var label_title: Label = $CenterContainer/VBoxContainer/TitleLabel
-@onready var label_status: Label = $CenterContainer/VBoxContainer/StatusLabel
+@onready var boost_btn: Button = $Margin/VBox/Footer/BoostBtn
 
 func _ready() -> void:
-	GameState.state_updated.connect(_on_state_updated)
-	_update_display()
+	boost_btn.pressed.connect(_on_boost_pressed)
+	GameState.state_updated.connect(_update_boost_button)
+	_update_boost_button()
 
-func _on_state_updated() -> void:
-	_update_display()
+func _on_boost_pressed() -> void:
+	# Rewarded ad boost: 2x revenue for 4 min (240s) (§6.1)
+	Ads.show_rewarded_ad("boost_button_2x", func():
+		GameState.boost_time_remaining = 240.0
+		GameState.boost_multiplier = 2.0
+		GameState.recalculate_all_metrics()
+		_update_boost_button()
+	)
 
-func _update_display() -> void:
-	if not label_status:
+func _update_boost_button() -> void:
+	if not boost_btn:
 		return
-	label_status.text = "Cash: $%s | TT: %d\nIT Load: %.1f kW | Power Cap: %.1f kW\nPUE: %.2f | Revenue: $%s/s" % [
-		Economy.format_magnitude(GameState.state["cash"]),
-		GameState.state["tech_tokens"],
-		GameState.it_load_kw,
-		GameState.power_capacity_kw,
-		GameState.pue,
-		Economy.format_magnitude(GameState.revenue_per_sec)
-	]
+	if GameState.boost_time_remaining > 0.0:
+		boost_btn.text = "BOOST ACTIVE (%ds)" % int(GameState.boost_time_remaining)
+		boost_btn.disabled = true
+	else:
+		boost_btn.text = "ACTIVATE 2X BOOST (4 MIN)"
+		boost_btn.disabled = false

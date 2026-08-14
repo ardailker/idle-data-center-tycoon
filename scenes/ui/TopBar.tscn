@@ -1,0 +1,124 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8xq4a3yt6w5m"]
+
+[ext_resource type="Script" path="res://scripts/ui/TopBar.gd" id="1_topbar"]
+
+[node name="TopBar" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 160)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 160.0
+grow_horizontal = 2
+script = ExtResource("1_topbar")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CashBox" type="VBoxContainer" parent="VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CashLabel" type="Label" parent="VBox/Header/CashBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.77, 0.37, 1)
+theme_override_font_sizes/font_size = 22
+text = "$ 15.00"
+
+[node name="RevLabel" type="Label" parent="VBox/Header/CashBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
+theme_override_font_sizes/font_size = 14
+text = "+$0.99/s"
+
+[node name="TTBox" type="VBoxContainer" parent="VBox/Header"]
+layout_mode = 2
+alignment = 1
+
+[node name="TTLabel" type="Label" parent="VBox/Header/TTBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.53, 0.98, 1)
+theme_override_font_sizes/font_size = 18
+text = "0 TT"
+horizontal_alignment = 2
+
+[node name="BoostBadge" type="Label" parent="VBox/Header"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
+theme_override_font_sizes/font_size = 14
+text = "2X BOOST"
+
+[node name="Gauges" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PowerGauge" type="VBoxContainer" parent="VBox/Gauges"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PowerLabel" type="Label" parent="VBox/Gauges/PowerGauge"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "PWR: 0.5 / 2.0 kW (25%)"
+
+[node name="PowerBar" type="ProgressBar" parent="VBox/Gauges/PowerGauge"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="CoolingGauge" type="VBoxContainer" parent="VBox/Gauges"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CoolingLabel" type="Label" parent="VBox/Gauges/CoolingGauge"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "COOL: 0.5 / 2.5 kW-th (20%)"
+
+[node name="CoolingBar" type="ProgressBar" parent="VBox/Gauges/CoolingGauge"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="Metrics" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PUEBox" type="HBoxContainer" parent="VBox/Metrics"]
+layout_mode = 2
+
+[node name="PUELabel" type="Label" parent="VBox/Metrics/PUEBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "PUE: 2.00"
+
+[node name="UptimeBox" type="HBoxContainer" parent="VBox/Metrics"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UptimeLabel" type="Label" parent="VBox/Metrics/UptimeBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "UPTIME: 99.000%"
+
+[node name="ThrottleBadge" type="Label" parent="VBox/Metrics"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
+theme_override_font_sizes/font_size = 14
+text = "THROTTLED"
+
+[node name="ThermalAlertBanner" type="PanelContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="ThermalAlertLabel" type="Label" parent="VBox/ThermalAlertBanner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.27, 0.27, 1)
+theme_override_font_sizes/font_size = 14
+text = "CRITICAL THERMAL OVERLOAD! TRIPPING IN 30.0s"
+horizontal_alignment = 1

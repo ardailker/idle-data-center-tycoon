@@ -240,3 +240,43 @@ func test_2hour_headless_simulation_sanity() -> void:
 	assert_true(sim_result["sane"], "2-hour simulation produces sane values")
 	assert_true(sim_result["lifetime_revenue"] > 1e6, "Lifetime revenue exceeds $1M in 2 hours")
 	assert_true(sim_result["pue"] >= 1.0 and sim_result["pue"] <= 2.5, "PUE stays in realistic engineering range")
+
+func test_playable_loop_constraint_triangle_and_save_load() -> void:
+	# 1. Reset GameState to known initial state
+	GameState.state["cash"] = 1000.0
+	GameState.state["unit_counts"] = {
+		"rack_1u": 1, "blade_chassis": 0, "gpu_pod": 0,
+		"pdu": 1, "ups_transformer": 0, "diesel_gen": 0,
+		"crac_unit": 1, "chilled_water_plant": 0, "economizer": 0
+	}
+	GameState.recalculate_all_metrics()
+	
+	# Initial: 1 rack (0.5kW), 1 PDU (2.0kW cap), 1 CRAC (2.5kW-th cap, 1.0kW draw)
+	# Total load = (0.5 + 1.0) * 1.05 = 1.575 kW <= 2.0 kW -> throttle is 1.0
+	assert_almost_eq(GameState.throttle_ratio, 1.0, 0.001, "Initial setup has sufficient power")
+	assert_true(GameState.cooling_capacity_kwth >= GameState.heat_load_kwth, "Initial setup has sufficient cooling")
+	
+	# 2. Buy 6 more 1U racks -> IT load = 3.5 kW, Total load > 4.5 kW > 2.0 kW PDU capacity
+	for i in range(6):
+		var bought := GameState.buy_unit("rack_1u", 1)
+		assert_true(bought, "Successfully bought 1U rack")
+	
+	# Verify constraint triangle: power throttles!
+	assert_true(GameState.throttle_ratio < 1.0, "Power is throttled due to exceeding PDU capacity")
+	
+	# 3. Buy electrical capacity (PDU) to resolve power throttle
+	var bought_pdu := GameState.buy_unit("pdu", 3)
+	assert_true(bought_pdu, "Successfully bought PDUs")
+	assert_almost_eq(GameState.throttle_ratio, 1.0, 0.001, "Buying PDUs resolves power throttling")
+	
+	# 4. Verify save and load lifecycle
+	SaveManager.save_game()
+	var saved_cash: float = float(GameState.state["cash"])
+	var saved_racks: int = int(GameState.state["unit_counts"]["rack_1u"])
+	
+	GameState.state["cash"] = 0.0
+	GameState.state["unit_counts"]["rack_1u"] = 0
+	SaveManager.load_game()
+	
+	assert_almost_eq(GameState.state["cash"], saved_cash, 0.001, "Cash restored from save file")
+	assert_eq(int(GameState.state["unit_counts"]["rack_1u"]), saved_racks, "Unit counts restored from save file")
