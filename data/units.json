@@ -1,0 +1,103 @@
+{
+  "units": [
+    {
+      "id": "rack_1u",
+      "name": "Rack — 1U Server Shelf",
+      "category": "it",
+      "base_cost": 10.0,
+      "cost_growth": 1.12,
+      "base_compute": 1.0,
+      "power_draw": 0.5,
+      "heat_coefficient": 1.0,
+      "description": "Entry-level standard 1U server rack unit."
+    },
+    {
+      "id": "blade_chassis",
+      "name": "Rack — Blade Chassis",
+      "category": "it",
+      "base_cost": 150.0,
+      "cost_growth": 1.12,
+      "base_compute": 4.0,
+      "power_draw": 1.5,
+      "heat_coefficient": 1.0,
+      "description": "High-density blade server enclosure: 4x compute, 3x power."
+    },
+    {
+      "id": "gpu_pod",
+      "name": "Rack — GPU Pod",
+      "category": "it",
+      "base_cost": 2000.0,
+      "cost_growth": 1.12,
+      "base_compute": 20.0,
+      "power_draw": 6.0,
+      "heat_coefficient": 2.0,
+      "description": "AI & HPC GPU cluster: 20x compute, 12x power, 2x heat output."
+    },
+    {
+      "id": "pdu",
+      "name": "PDU",
+      "category": "electrical",
+      "base_cost": 25.0,
+      "cost_growth": 1.09,
+      "power_capacity": 2.0,
+      "uptime_bonus": 0.0,
+      "fuel_cost_per_sec": 0.0,
+      "description": "Basic Power Distribution Unit providing modular feed capacity."
+    },
+    {
+      "id": "ups_transformer",
+      "name": "UPS + Transformer",
+      "category": "electrical",
+      "base_cost": 300.0,
+      "cost_growth": 1.09,
+      "power_capacity": 10.0,
+      "uptime_bonus": 0.02,
+      "fuel_cost_per_sec": 0.0,
+      "description": "Uninterruptible power supply and step-down transformer (+2% uptime)."
+    },
+    {
+      "id": "diesel_gen",
+      "name": "Diesel Generator",
+      "category": "electrical",
+      "base_cost": 4000.0,
+      "cost_growth": 1.09,
+      "power_capacity": 50.0,
+      "uptime_bonus": 0.015,
+      "fuel_cost_per_sec": 0.5,
+      "description": "Heavy backup generator (+1.5% uptime, small fuel burn)."
+    },
+    {
+      "id": "crac_unit",
+      "name": "CRAC Unit",
+      "category": "mechanical",
+      "base_cost": 40.0,
+      "cost_growth": 1.10,
+      "cooling_capacity": 2.5,
+      "power_draw": 1.0,
+      "climate_dependent": false,
+      "description": "Computer Room Air Conditioner: standard direct-expansion cooling."
+    },
+    {
+      "id": "chilled_water_plant",
+      "name": "Chilled Water Plant",
+      "category": "mechanical",
+      "base_cost": 500.0,
+      "cost_growth": 1.10,
+      "cooling_capacity": 15.0,
+      "power_draw": 2.5,
+      "climate_dependent": false,
+      "description": "Central chiller loop with high thermal efficiency."
+    },
+    {
+      "id": "economizer",
+      "name": "Free Cooling Economizer",
+      "category": "mechanical",
+      "base_cost": 6000.0,
+      "cost_growth": 1.10,
+      "cooling_capacity": 60.0,
+      "power_draw": 0.2,
+      "climate_dependent": true,
+      "description": "Ambient air heat exchange; capacity scales with local site climate."
+    }
+  ]
+}

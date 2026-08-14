@@ -1,0 +1,188 @@
+{
+  "branches": [
+    {
+      "id": "electrical",
+      "name": "Electrical",
+      "nodes": [
+        {
+          "id": "elec_1",
+          "name": "Higher-Voltage Distribution",
+          "cost_tt": 1,
+          "effect_type": "power_loss_reduction",
+          "effect_value": 0.05,
+          "description": "Reduces distribution losses by 5%."
+        },
+        {
+          "id": "elec_2",
+          "name": "DC Busway",
+          "cost_tt": 4,
+          "effect_type": "power_loss_reduction",
+          "effect_value": 0.10,
+          "description": "Eliminates AC/DC transformation steps, reducing loss by 10%."
+        },
+        {
+          "id": "elec_3",
+          "name": "Lithium UPS",
+          "cost_tt": 15,
+          "effect_type": "uptime_bonus",
+          "effect_value": 0.01,
+          "description": "Increases overall system uptime reliability by +1.0%."
+        },
+        {
+          "id": "elec_4",
+          "name": "On-Site Solar",
+          "cost_tt": 50,
+          "effect_type": "power_capacity_bonus",
+          "effect_value": 0.15,
+          "description": "Adds 15% supplemental power capacity to all electrical units."
+        },
+        {
+          "id": "elec_5",
+          "name": "Grid Arbitrage",
+          "cost_tt": 150,
+          "effect_type": "revenue_multiplier",
+          "effect_value": 0.25,
+          "description": "Smart grid peaking contracts increase net revenue by 25%."
+        }
+      ]
+    },
+    {
+      "id": "mechanical",
+      "name": "Mechanical",
+      "nodes": [
+        {
+          "id": "mech_1",
+          "name": "Hot-Aisle Containment",
+          "cost_tt": 1,
+          "effect_type": "cooling_efficiency_bonus",
+          "effect_value": 0.10,
+          "description": "Improves cooling effectiveness by 10%."
+        },
+        {
+          "id": "mech_2",
+          "name": "Raised Setpoint",
+          "cost_tt": 4,
+          "effect_type": "mech_power_reduction",
+          "effect_value": 0.15,
+          "description": "Reduces mechanical power draw by 15%."
+        },
+        {
+          "id": "mech_3",
+          "name": "Liquid-to-Chip",
+          "cost_tt": 15,
+          "effect_type": "cooling_capacity_bonus",
+          "effect_value": 0.25,
+          "description": "Direct die cooling increases cooling capacity by 25%."
+        },
+        {
+          "id": "mech_4",
+          "name": "Immersion Cooling",
+          "cost_tt": 50,
+          "effect_type": "heat_reduction",
+          "effect_value": 0.20,
+          "description": "Submerged hardware produces 20% less ambient heat load."
+        },
+        {
+          "id": "mech_5",
+          "name": "Waste-Heat Recovery",
+          "cost_tt": 150,
+          "effect_type": "revenue_multiplier",
+          "effect_value": 0.30,
+          "description": "District heating contracts generate +30% bonus revenue."
+        }
+      ]
+    },
+    {
+      "id": "compute",
+      "name": "Compute",
+      "nodes": [
+        {
+          "id": "comp_1",
+          "name": "Denser Packing",
+          "cost_tt": 1,
+          "effect_type": "compute_multiplier",
+          "effect_value": 0.10,
+          "description": "Increases compute output by 10%."
+        },
+        {
+          "id": "comp_2",
+          "name": "Better Schedulers",
+          "cost_tt": 4,
+          "effect_type": "compute_multiplier",
+          "effect_value": 0.15,
+          "description": "Optimized workload orchestration boosts compute by 15%."
+        },
+        {
+          "id": "comp_3",
+          "name": "Custom Silicon",
+          "cost_tt": 15,
+          "effect_type": "compute_multiplier",
+          "effect_value": 0.25,
+          "description": "Custom ASICs boost compute by 25%."
+        },
+        {
+          "id": "comp_4",
+          "name": "Overclock Profiles",
+          "cost_tt": 50,
+          "effect_type": "compute_multiplier",
+          "effect_value": 0.35,
+          "description": "Precision clock gating yields +35% compute output."
+        },
+        {
+          "id": "comp_5",
+          "name": "Dark-Fiber Peering",
+          "cost_tt": 150,
+          "effect_type": "contract_rate_multiplier",
+          "effect_value": 0.50,
+          "description": "Ultra-low latency connectivity boosts contract rate by 50%."
+        }
+      ]
+    },
+    {
+      "id": "ops",
+      "name": "Ops",
+      "nodes": [
+        {
+          "id": "ops_1",
+          "name": "Automated Remediation",
+          "cost_tt": 1,
+          "effect_type": "uptime_bonus",
+          "effect_value": 0.005,
+          "description": "Automated alert recovery adds +0.5% uptime."
+        },
+        {
+          "id": "ops_2",
+          "name": "N+1 Redundancy",
+          "cost_tt": 4,
+          "effect_type": "trip_time_bonus",
+          "effect_value": 0.50,
+          "description": "Extends thermal trip grace period by 50%."
+        },
+        {
+          "id": "ops_3",
+          "name": "Predictive Maintenance",
+          "cost_tt": 15,
+          "effect_type": "event_mitigation",
+          "effect_value": 0.25,
+          "description": "Reduces negative random event severity by 25%."
+        },
+        {
+          "id": "ops_4",
+          "name": "Staffed NOC",
+          "cost_tt": 50,
+          "effect_type": "uptime_bonus",
+          "effect_value": 0.015,
+          "description": "24/7 operations center guarantees +1.5% uptime."
+        },
+        {
+          "id": "ops_5",
+          "name": "SLA Renegotiation",
+          "cost_tt": 150,
+          "effect_type": "contract_rate_multiplier",
+          "effect_value": 0.40,
+          "description": "Tier-1 premium SLA contracts increase base rates by 40%."
+        }
+      ]
+    }
+  ]
+}

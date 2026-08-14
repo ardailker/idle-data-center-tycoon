@@ -1,0 +1,59 @@
+{
+  "events": [
+    {
+      "id": "heat_wave",
+      "name": "Heat Wave",
+      "type": "hazard",
+      "duration_sec": 180,
+      "effect_target": "cooling_capacity",
+      "effect_multiplier": 0.70,
+      "ad_reward_fix": true,
+      "cash_repair_cost_ratio": 0.0,
+      "description": "Ambient heatwave reduces cooling capacity by 30% for 3 minutes."
+    },
+    {
+      "id": "grid_sag",
+      "name": "Grid Sag",
+      "type": "hazard",
+      "duration_sec": 120,
+      "effect_target": "power_capacity",
+      "effect_multiplier": 0.75,
+      "ad_reward_fix": true,
+      "cash_repair_cost_ratio": 0.0,
+      "description": "Regional grid instability cuts electrical capacity by 25% for 2 minutes."
+    },
+    {
+      "id": "coolant_leak",
+      "name": "Coolant Leak",
+      "type": "hazard",
+      "duration_sec": 0,
+      "effect_target": "cooling_unit_offline",
+      "effect_multiplier": 0.0,
+      "ad_reward_fix": true,
+      "cash_repair_cost_ratio": 0.05,
+      "description": "A pipe ruptured. One cooling unit is offline until repaired."
+    },
+    {
+      "id": "traffic_spike",
+      "name": "Traffic Spike",
+      "type": "gift",
+      "duration_sec": 120,
+      "effect_target": "compute_demand",
+      "effect_multiplier": 2.0,
+      "ad_reward_fix": false,
+      "cash_repair_cost_ratio": 0.0,
+      "description": "Viral demand spike! Compute revenue doubled for 2 minutes."
+    },
+    {
+      "id": "audit_passed",
+      "name": "Audit Passed",
+      "type": "gift",
+      "duration_sec": 0,
+      "effect_target": "instant_offline_seconds",
+      "effect_multiplier": 3600,
+      "ad_reward_fix": false,
+      "cash_repair_cost_ratio": 0.0,
+      "description": "Compliance certified! Instantly awards 1 hour of earnings."
+    }
+  ]
+}
