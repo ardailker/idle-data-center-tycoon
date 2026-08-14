@@ -1,0 +1,63 @@
+[gd_scene load_steps=2 format=3 uid="uid://b0xq3y7e8n5ap"]
+
+[ext_resource type="Script" path="res://scripts/ui/TechTree.gd" id="1_techtree"]
+
+[node name="TechTree" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+script = ExtResource("1_techtree")
+
+[node name="Header" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="TTLabel" type="Label" parent="Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.53, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "RESEARCH VAULT: 0 TECH TOKENS"
+horizontal_alignment = 1
+
+[node name="BranchTabs" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ElecBtn" type="Button" parent="BranchTabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "ELECTRICAL"
+
+[node name="MechBtn" type="Button" parent="BranchTabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "MECHANICAL"
+
+[node name="CompBtn" type="Button" parent="BranchTabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "COMPUTE"
+
+[node name="OpsBtn" type="Button" parent="BranchTabs"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "OPERATIONS"
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="NodesContainer" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8

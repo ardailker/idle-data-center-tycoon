@@ -280,3 +280,49 @@ func test_playable_loop_constraint_triangle_and_save_load() -> void:
 	
 	assert_almost_eq(GameState.state["cash"], saved_cash, 0.001, "Cash restored from save file")
 	assert_eq(int(GameState.state["unit_counts"]["rack_1u"]), saved_racks, "Unit counts restored from save file")
+
+func test_tech_tree_progression() -> void:
+	GameState.state["tech_tokens"] = 10
+	GameState.state["unlocked_techs"] = []
+	
+	# Node elec_1 costs 1 TT
+	var unlocked_1 := GameState.unlock_tech_node("elec_1")
+	assert_true(unlocked_1, "Successfully unlocked first node in branch")
+	assert_eq(int(GameState.state["tech_tokens"]), 9, "TT deducted")
+	assert_true("elec_1" in GameState.state["unlocked_techs"], "elec_1 registered in state")
+	
+	# Node elec_3 requires elec_2 first (prerequisite check)
+	var locked_3 := GameState.unlock_tech_node("elec_3")
+	assert_false(locked_3, "Cannot skip prerequisite node elec_2")
+	
+	# Node elec_2 costs 4 TT
+	var unlocked_2 := GameState.unlock_tech_node("elec_2")
+	assert_true(unlocked_2, "Successfully unlocked elec_2")
+	assert_eq(int(GameState.state["tech_tokens"]), 5, "TT deducted for elec_2")
+
+func test_site_sale_prestige_and_tier_unlock() -> void:
+	GameState.state["lifetime_revenue_this_site"] = 4.0e9 # $4B -> 24 TT base
+	GameState.state["tech_tokens"] = 10
+	
+	# Standard prestige
+	var tokens_earned := GameState.prestige_site_sale(false, 1)
+	assert_eq(tokens_earned, 24, "Earned 24 TT from $4B site sale")
+	assert_eq(int(GameState.state["tech_tokens"]), 34, "Tokens added to TT balance")
+	assert_almost_eq(GameState.state["lifetime_revenue_this_site"], 0.0, 0.001, "Site lifetime revenue reset")
+	assert_eq(int(GameState.state["unit_counts"]["rack_1u"]), 1, "Racks reset to 1")
+	
+	# Unlock Colo Suite (Tier 2 costs 5 TT)
+	var unlocked_tier_2 := GameState.unlock_site_tier(2)
+	assert_true(unlocked_tier_2, "Unlocked Tier 2 site")
+	assert_eq(int(GameState.state["site_tier"]), 2, "Site tier is now Colo Suite")
+
+func test_random_events_trigger_and_resolve() -> void:
+	GameState.state["cash"] = 1000.0
+	GameState.trigger_random_event("traffic_spike")
+	assert_eq(GameState.active_event.get("id", ""), "traffic_spike", "Triggered Traffic Spike event")
+	assert_true(GameState.active_event_time_remaining > 0, "Event countdown active")
+	
+	# Resolve event
+	var resolved := GameState.resolve_event(true, false)
+	assert_true(resolved, "Resolved event")
+	assert_true(GameState.active_event.is_empty(), "Active event cleared")

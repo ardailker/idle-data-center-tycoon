@@ -85,7 +85,9 @@ func load_all_catalogs() -> void:
 	
 	sites_data = _load_json_file("res://data/sites.json").get("sites", [])
 	for s in sites_data:
-		sites_dict[s["tier"]] = s
+		var tier_int: int = int(s.get("tier", 1))
+		s["tier"] = tier_int
+		sites_dict[tier_int] = s
 	
 	tech_branches = _load_json_file("res://data/tech_tree.json").get("branches", [])
 	for b in tech_branches:
@@ -263,4 +265,141 @@ func buy_unit(unit_id: String, amount: int = 1) -> bool:
 	# Save immediately on purchase per §7.5
 	if SaveManager:
 		SaveManager.save_game()
+	return true
+
+func unlock_tech_node(tech_id: String) -> bool:
+	if tech_id in state["unlocked_techs"]:
+		return false
+	var node: Dictionary = tech_nodes_dict.get(tech_id, {})
+	if node.is_empty():
+		return false
+	
+	var cost_tt: int = int(node.get("cost_tt", 1))
+	if state["tech_tokens"] < cost_tt:
+		return false
+	
+	# Prerequisite: ensure previous node in branch is unlocked
+	for branch in tech_branches:
+		var branch_nodes: Array = branch.get("nodes", [])
+		for i in range(branch_nodes.size()):
+			if branch_nodes[i].get("id", "") == tech_id:
+				if i > 0:
+					var prev_id: String = branch_nodes[i - 1].get("id", "")
+					if not (prev_id in state["unlocked_techs"]):
+						return false # Prerequisite not met
+				break
+	
+	state["tech_tokens"] -= cost_tt
+	state["unlocked_techs"].append(tech_id)
+	currency_changed.emit(state["cash"], state["tech_tokens"])
+	recalculate_all_metrics()
+	if SaveManager:
+		SaveManager.save_game()
+	return true
+
+func unlock_site_tier(tier: int) -> bool:
+	var site: Dictionary = sites_dict.get(tier, {})
+	if site.is_empty():
+		return false
+	var cost_tt: int = int(site.get("unlock_cost_tt", 0))
+	if state["tech_tokens"] < cost_tt:
+		return false
+	state["tech_tokens"] -= cost_tt
+	state["site_tier"] = tier
+	currency_changed.emit(state["cash"], state["tech_tokens"])
+	site_changed.emit(tier)
+	recalculate_all_metrics()
+	if SaveManager:
+		SaveManager.save_game()
+	return true
+
+func prestige_site_sale(apply_ad_bonus: bool = false, target_tier: int = -1) -> int:
+	var lifetime_rev: float = float(state.get("lifetime_revenue_this_site", 0.0))
+	if lifetime_rev < 1.0e9:
+		return 0 # Requires lifetime_revenue >= 1e9 (§5)
+	
+	var tokens: int = Economy.calculate_prestige_tokens(lifetime_rev)
+	if apply_ad_bonus:
+		# +25% TT from rewarded ad (§6.1)
+		tokens = int(floor(float(tokens) * 1.25))
+	
+	state["tech_tokens"] += tokens
+	if target_tier > 0 and sites_dict.has(target_tier):
+		state["site_tier"] = target_tier
+	
+	# Reset site per §3 & §5
+	state["cash"] = 15.0
+	state["lifetime_revenue_this_site"] = 0.0
+	state["unit_counts"] = {
+		"rack_1u": 1,
+		"blade_chassis": 0,
+		"gpu_pod": 0,
+		"pdu": 1,
+		"ups_transformer": 0,
+		"diesel_gen": 0,
+		"crac_unit": 1,
+		"chilled_water_plant": 0,
+		"economizer": 0
+	}
+	thermal_tripped_count = 0
+	thermal_alarm_timer = 0.0
+	active_event.clear()
+	active_event_time_remaining = 0.0
+	
+	recalculate_all_metrics()
+	currency_changed.emit(state["cash"], state["tech_tokens"])
+	site_changed.emit(state["site_tier"])
+	
+	if Analytics:
+		Analytics.track_prestige(state["site_tier"], tokens)
+	if Ads:
+		Ads.show_interstitial("site_sale")
+	if SaveManager:
+		SaveManager.save_game()
+	return tokens
+
+func trigger_random_event(event_id: String = "") -> void:
+	var selected: Dictionary = {}
+	if not event_id.is_empty() and events_dict.has(event_id):
+		selected = events_dict[event_id]
+	elif events_data.size() > 0:
+		selected = events_data[randi() % events_data.size()]
+	
+	if selected.is_empty():
+		return
+	
+	active_event = selected.duplicate()
+	var duration: float = float(selected.get("duration_sec", 0))
+	active_event_time_remaining = duration
+	
+	# Instant event handling
+	var target: String = selected.get("effect_target", "")
+	if target == "instant_offline_seconds":
+		# Audit passed (+1 hour offline accrual §4.6)
+		var bonus_cash: float = revenue_per_sec * 3600.0 * 0.5
+		state["cash"] += bonus_cash
+		state["lifetime_revenue_this_site"] += bonus_cash
+		currency_changed.emit(state["cash"], state["tech_tokens"])
+	
+	event_started.emit(active_event)
+	recalculate_all_metrics()
+
+func resolve_event(with_ad: bool = false, with_cash: bool = false) -> bool:
+	if active_event.is_empty():
+		return false
+	
+	if with_cash:
+		var ratio: float = float(active_event.get("cash_repair_cost_ratio", 0.0))
+		var cost: float = state["cash"] * ratio
+		if cost > 0.0 and state["cash"] >= cost:
+			state["cash"] -= cost
+			currency_changed.emit(state["cash"], state["tech_tokens"])
+		else:
+			return false
+	
+	var finished_event := active_event.duplicate()
+	active_event.clear()
+	active_event_time_remaining = 0.0
+	event_ended.emit(finished_event)
+	recalculate_all_metrics()
 	return true

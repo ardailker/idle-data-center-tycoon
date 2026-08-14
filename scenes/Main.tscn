@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://df5w3s8mty10c"]
+[gd_scene load_steps=8 format=3 uid="uid://df5w3s8mty10c"]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://b8xq4a3yt6w5m" path="res://scenes/ui/TopBar.tscn" id="2_topbar"]
-[ext_resource type="PackedScene" uid="uid://c6f3y7kx8n0ap" path="res://scenes/ui/UnitList.tscn" id="3_unitlist"]
-[ext_resource type="PackedScene" uid="uid://cx6y8v2qg9m2p" path="res://scenes/ui/ReturnScreen.tscn" id="4_return"]
+[ext_resource type="PackedScene" uid="uid://df6y3m1pt2w8n" path="res://scenes/ui/EventCard.tscn" id="3_event"]
+[ext_resource type="PackedScene" uid="uid://c6f3y7kx8n0ap" path="res://scenes/ui/UnitList.tscn" id="4_unitlist"]
+[ext_resource type="PackedScene" uid="uid://b0xq3y7e8n5ap" path="res://scenes/ui/TechTree.tscn" id="5_techtree"]
+[ext_resource type="PackedScene" uid="uid://cx4y8a2qt7n0p" path="res://scenes/ui/SiteSale.tscn" id="6_sitesale"]
+[ext_resource type="PackedScene" uid="uid://cx6y8v2qg9m2p" path="res://scenes/ui/ReturnScreen.tscn" id="7_return"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -37,25 +40,66 @@ theme_override_constants/margin_bottom = 16
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="TopBar" parent="Margin/VBox" instance=ExtResource("2_topbar")]
 layout_mode = 2
 
-[node name="UnitList" parent="Margin/VBox" instance=ExtResource("3_unitlist")]
+[node name="EventCard" parent="Margin/VBox" instance=ExtResource("3_event")]
+visible = false
 layout_mode = 2
+
+[node name="ViewContainer" type="MarginContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="UnitList" parent="Margin/VBox/ViewContainer" instance=ExtResource("4_unitlist")]
+layout_mode = 2
+
+[node name="TechTree" parent="Margin/VBox/ViewContainer" instance=ExtResource("5_techtree")]
+visible = false
+layout_mode = 2
+
+[node name="SiteSale" parent="Margin/VBox/ViewContainer" instance=ExtResource("6_sitesale")]
+visible = false
+layout_mode = 2
+
+[node name="NavBar" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FacilityNavBtn" type="Button" parent="Margin/VBox/NavBar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "FACILITY"
+
+[node name="TechNavBtn" type="Button" parent="Margin/VBox/NavBar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "TECH TREE"
+
+[node name="SiteNavBtn" type="Button" parent="Margin/VBox/NavBar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "SITE SALE"
 
 [node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
 
 [node name="BoostBtn" type="Button" parent="Margin/VBox/Footer"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 text = "ACTIVATE 2X BOOST (4 MIN)"
 
-[node name="ReturnScreen" parent="." instance=ExtResource("4_return")]
+[node name="ReturnScreen" parent="." instance=ExtResource("7_return")]
 visible = false
 layout_mode = 1

@@ -1,0 +1,84 @@
+[gd_scene load_steps=2 format=3 uid="uid://cx4y8a2qt7n0p"]
+
+[ext_resource type="Script" path="res://scripts/ui/SiteSale.gd" id="1_sitesale"]
+
+[node name="SiteSale" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+script = ExtResource("1_sitesale")
+
+[node name="PrestigeCard" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="PrestigeCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="PrestigeCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="PrestigeCard/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 18
+text = "DATA CENTER SITE SALE (PRESTIGE)"
+horizontal_alignment = 1
+
+[node name="RevSummaryLabel" type="Label" parent="PrestigeCard/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Current Site Revenue: $0.00 / $1.00 B"
+horizontal_alignment = 1
+
+[node name="TTRewardLabel" type="Label" parent="PrestigeCard/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.53, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "REWARD: +0 TECH TOKENS"
+horizontal_alignment = 1
+
+[node name="Actions" type="HBoxContainer" parent="PrestigeCard/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SellBtn" type="Button" parent="PrestigeCard/Margin/VBox/Actions"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "SELL FACILITY"
+
+[node name="SellAdBtn" type="Button" parent="PrestigeCard/Margin/VBox/Actions"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
+theme_override_font_sizes/font_size = 13
+text = "SELL + 25% AD BONUS"
+
+[node name="SiteTiersHeader" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+text = "AVAILABLE CAMPUS FOOTPRINTS"
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SitesContainer" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
