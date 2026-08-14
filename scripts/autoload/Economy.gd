@@ -38,6 +38,25 @@ static func calculate_bulk_unit_cost(base_cost: float, cost_growth: float, curre
 	return first_term * (pow(cost_growth, float(buy_amount)) - 1.0) / (cost_growth - 1.0)
 
 
+static func calculate_max_affordable_units(base_cost: float, cost_growth: float, current_count: int, available_cash: float) -> int:
+	if available_cash <= 0.0:
+		return 0
+	var first_term: float = calculate_unit_cost(base_cost, cost_growth, current_count)
+	if available_cash < first_term:
+		return 0
+	if is_equal_approx(cost_growth, 1.0):
+		return int(floor(available_cash / base_cost))
+	var factor: float = 1.0 + (available_cash * (cost_growth - 1.0) / first_term)
+	if factor <= 0.0:
+		return 0
+	var count_est: int = int(floor((log(factor) / log(cost_growth)) + 0.0000001))
+	while calculate_bulk_unit_cost(base_cost, cost_growth, current_count, count_est + 1) <= available_cash:
+		count_est += 1
+	while count_est > 0 and calculate_bulk_unit_cost(base_cost, cost_growth, current_count, count_est) > available_cash:
+		count_est -= 1
+	return count_est
+
+
 static func calculate_it_load_kw(unit_counts: Dictionary, units_dict: Dictionary) -> float:
 	var total: float = 0.0
 	for unit_id in unit_counts:
@@ -188,3 +207,39 @@ static func calculate_prestige_tokens(lifetime_revenue_this_site: float) -> int:
 		return 0
 	# tokens_earned = floor(12 * pow(lifetime_revenue_this_site / 1e9, 0.5))
 	return int(floor(12.0 * sqrt(lifetime_revenue_this_site / 1e9)))
+
+
+static func calculate_tech_multiplier(
+	unlocked_tech_ids: Array,
+	tech_nodes_dict: Dictionary,
+	tech_branches: Array,
+	effect_type: String
+) -> float:
+	# §5: "Tech multipliers stack multiplicatively within a branch, additively across branches"
+	var total_cross_branch_bonus: float = 0.0
+	for branch in tech_branches:
+		var branch_nodes: Array = branch.get("nodes", [])
+		var branch_mult: float = 1.0
+		var branch_has_effect: bool = false
+		for node in branch_nodes:
+			var node_id: String = node.get("id", "")
+			if node_id in unlocked_tech_ids and node.get("effect_type", "") == effect_type:
+				var val: float = float(node.get("effect_value", 0.0))
+				branch_mult *= (1.0 + val)
+				branch_has_effect = true
+		if branch_has_effect:
+			total_cross_branch_bonus += (branch_mult - 1.0)
+	return 1.0 + total_cross_branch_bonus
+
+
+static func calculate_tech_additive_bonus(
+	unlocked_tech_ids: Array,
+	tech_nodes_dict: Dictionary,
+	effect_type: String
+) -> float:
+	var total: float = 0.0
+	for tech_id in unlocked_tech_ids:
+		var node: Dictionary = tech_nodes_dict.get(tech_id, {})
+		if node.get("effect_type", "") == effect_type:
+			total += float(node.get("effect_value", 0.0))
+	return total

@@ -165,16 +165,16 @@ func _economy_tick(dt: float) -> void:
 func recalculate_all_metrics() -> void:
 	var counts: Dictionary = state["unit_counts"]
 	
-	# Tech modifiers
-	var tech_power_loss_red: float = _sum_tech_effects("power_loss_reduction")
-	var tech_mech_power_red: float = _sum_tech_effects("mech_power_reduction")
-	var tech_power_cap_bonus: float = _sum_tech_effects("power_capacity_bonus")
-	var tech_cool_cap_bonus: float = _sum_tech_effects("cooling_capacity_bonus")
-	var tech_heat_red: float = _sum_tech_effects("heat_reduction")
-	var tech_compute_mult: float = 1.0 + _sum_tech_effects("compute_multiplier")
-	var tech_uptime_bonus: float = _sum_tech_effects("uptime_bonus")
-	var tech_rev_mult: float = 1.0 + _sum_tech_effects("revenue_multiplier")
-	var tech_contract_mult: float = 1.0 + _sum_tech_effects("contract_rate_multiplier")
+	# Tech modifiers (§5: intra-branch multiplicative, cross-branch additive)
+	var tech_power_loss_red: float = Economy.calculate_tech_additive_bonus(state["unlocked_techs"], tech_nodes_dict, "power_loss_reduction")
+	var tech_mech_power_red: float = Economy.calculate_tech_additive_bonus(state["unlocked_techs"], tech_nodes_dict, "mech_power_reduction")
+	var tech_power_cap_bonus: float = Economy.calculate_tech_additive_bonus(state["unlocked_techs"], tech_nodes_dict, "power_capacity_bonus")
+	var tech_cool_cap_bonus: float = Economy.calculate_tech_additive_bonus(state["unlocked_techs"], tech_nodes_dict, "cooling_capacity_bonus")
+	var tech_heat_red: float = Economy.calculate_tech_additive_bonus(state["unlocked_techs"], tech_nodes_dict, "heat_reduction")
+	var tech_compute_mult: float = Economy.calculate_tech_multiplier(state["unlocked_techs"], tech_nodes_dict, tech_branches, "compute_multiplier")
+	var tech_uptime_bonus: float = Economy.calculate_tech_additive_bonus(state["unlocked_techs"], tech_nodes_dict, "uptime_bonus")
+	var tech_rev_mult: float = Economy.calculate_tech_multiplier(state["unlocked_techs"], tech_nodes_dict, tech_branches, "revenue_multiplier")
+	var tech_contract_mult: float = Economy.calculate_tech_multiplier(state["unlocked_techs"], tech_nodes_dict, tech_branches, "contract_rate_multiplier")
 	
 	# Current site
 	var site: Dictionary = sites_dict.get(state["site_tier"], {})
