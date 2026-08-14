@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 Economy="*res://scripts/autoload/Economy.gd"
 GameState="*res://scripts/autoload/GameState.gd"
 SaveManager="*res://scripts/autoload/SaveManager.gd"
+SoundManager="*res://scripts/autoload/SoundManager.gd"
 Ads="*res://scripts/autoload/Ads.gd"
 Analytics="*res://scripts/autoload/Analytics.gd"
 

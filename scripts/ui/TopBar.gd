@@ -1,9 +1,12 @@
 extends PanelContainer
 
+signal settings_requested()
+
 @onready var cash_label: Label = $VBox/Header/CashBox/CashLabel
 @onready var rev_label: Label = $VBox/Header/CashBox/RevLabel
 @onready var tt_label: Label = $VBox/Header/TTBox/TTLabel
 @onready var boost_badge: Label = $VBox/Header/BoostBadge
+@onready var settings_btn: Button = $VBox/Header/SettingsBtn
 
 @onready var power_bar: ProgressBar = $VBox/Gauges/PowerGauge/PowerBar
 @onready var power_label: Label = $VBox/Gauges/PowerGauge/PowerLabel
@@ -22,6 +25,7 @@ var alert_blink_timer: float = 0.0
 func _ready() -> void:
 	GameState.state_updated.connect(_update_ui)
 	GameState.thermal_alert.connect(_on_thermal_alert)
+	settings_btn.pressed.connect(func(): settings_requested.emit())
 	_update_ui()
 
 func _process(delta: float) -> void:

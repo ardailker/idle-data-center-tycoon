@@ -45,6 +45,12 @@ theme_override_font_sizes/font_size = 18
 text = "0 TT"
 horizontal_alignment = 2
 
+[node name="SettingsBtn" type="Button" parent="VBox/Header"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "⚙"
+
 [node name="BoostBadge" type="Label" parent="VBox/Header"]
 visible = false
 layout_mode = 2

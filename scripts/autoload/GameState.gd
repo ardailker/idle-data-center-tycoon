@@ -403,3 +403,34 @@ func resolve_event(with_ad: bool = false, with_cash: bool = false) -> bool:
 	event_ended.emit(finished_event)
 	recalculate_all_metrics()
 	return true
+
+func process_iap_purchase(sku: String) -> bool:
+	# IAP Catalog (§6.3)
+	if sku == "remove_ads":
+		state["remove_ads_owned"] = true
+		if Analytics:
+			Analytics.track_purchase(sku, 2.99)
+	elif sku == "starter_pack":
+		state["tech_tokens"] += 10
+		boost_multiplier = 2.0
+		boost_time_remaining = 86400.0 # 24h 2x revenue
+		currency_changed.emit(state["cash"], state["tech_tokens"])
+		if Analytics:
+			Analytics.track_purchase(sku, 4.99)
+	elif sku == "tt_small":
+		state["tech_tokens"] += 15
+		currency_changed.emit(state["cash"], state["tech_tokens"])
+		if Analytics:
+			Analytics.track_purchase(sku, 4.99)
+	elif sku == "tt_large":
+		state["tech_tokens"] += 75
+		currency_changed.emit(state["cash"], state["tech_tokens"])
+		if Analytics:
+			Analytics.track_purchase(sku, 19.99)
+	else:
+		return false
+	
+	recalculate_all_metrics()
+	if SaveManager:
+		SaveManager.save_game()
+	return true

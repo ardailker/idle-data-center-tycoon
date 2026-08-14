@@ -10,6 +10,9 @@ extends Control
 @onready var site_sale_view: Control = $Margin/VBox/ViewContainer/SiteSale
 @onready var event_card: Control = $Margin/VBox/EventCard
 
+@onready var top_bar: PanelContainer = $Margin/VBox/TopBar
+@onready var settings_dialog: PanelContainer = $Settings
+
 var current_view: String = "facility"
 
 func _ready() -> void:
@@ -17,6 +20,7 @@ func _ready() -> void:
 	facility_nav_btn.pressed.connect(func(): _switch_view("facility"))
 	tech_nav_btn.pressed.connect(func(): _switch_view("tech_tree"))
 	site_nav_btn.pressed.connect(func(): _switch_view("site_sale"))
+	top_bar.settings_requested.connect(func(): settings_dialog.open_settings())
 	
 	GameState.state_updated.connect(_update_boost_button)
 	_update_boost_button()

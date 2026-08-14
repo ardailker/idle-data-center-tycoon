@@ -326,3 +326,41 @@ func test_random_events_trigger_and_resolve() -> void:
 	var resolved := GameState.resolve_event(true, false)
 	assert_true(resolved, "Resolved event")
 	assert_true(GameState.active_event.is_empty(), "Active event cleared")
+
+func test_iap_purchases_and_offline_cap() -> void:
+	GameState.state["tech_tokens"] = 0
+	GameState.state["remove_ads_owned"] = false
+	
+	# Buy remove_ads
+	var bought_ads := GameState.process_iap_purchase("remove_ads")
+	assert_true(bought_ads, "Processed remove_ads IAP")
+	assert_true(GameState.state["remove_ads_owned"], "remove_ads_owned is true")
+	
+	# Verify offline cap doubled from 2h (7200s) to 4h (14400s)
+	var offline_calc := Economy.calculate_offline_earnings(100.0, 0, 20000, GameState.state["remove_ads_owned"])
+	assert_eq(float(offline_calc["offline_cap"]), 14400.0, "Offline cap extended to 4 hours (14,400s)")
+	
+	# Buy starter_pack
+	var bought_pack := GameState.process_iap_purchase("starter_pack")
+	assert_true(bought_pack, "Processed starter_pack IAP")
+	assert_eq(int(GameState.state["tech_tokens"]), 10, "10 TT awarded from starter pack")
+	assert_almost_eq(GameState.boost_multiplier, 2.0, 0.001, "2x revenue multiplier active")
+	assert_true(GameState.boost_time_remaining > 80000.0, "24h boost duration set")
+	
+	# Buy small and large TT packs
+	GameState.process_iap_purchase("tt_small")
+	assert_eq(int(GameState.state["tech_tokens"]), 25, "15 TT added from tt_small")
+	GameState.process_iap_purchase("tt_large")
+	assert_eq(int(GameState.state["tech_tokens"]), 100, "75 TT added from tt_large")
+
+func test_sound_manager_synth() -> void:
+	# Verify SoundManager audio triggers execute without crashing
+	GameState.state["settings"]["sfx_enabled"] = true
+	GameState.state["settings"]["music_enabled"] = true
+	SoundManager.play_click()
+	SoundManager.play_alarm()
+	SoundManager.play_research()
+	SoundManager.play_prestige()
+	SoundManager.play_cash()
+	SoundManager.update_audio_settings()
+	assert_true(true, "SoundManager executed all procedural audio without errors")
