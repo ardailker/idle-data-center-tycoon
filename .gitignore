@@ -1,0 +1,13 @@
+# Godot 4+ specific ignores
+.godot/
+*.translation
+
+# Android export generated files / keystores
+*.apk
+*.aab
+android/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.tmp
