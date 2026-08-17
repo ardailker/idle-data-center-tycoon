@@ -71,7 +71,7 @@ Session shape: 60–120 second active sessions, 4–8 times a day, plus offline 
 | Compute | `TFLOPs` | Produced by racks. Converted to Cash by contracts. |
 | Power capacity | `kW` | Supplied by electrical units. Consumed by IT + mechanical. |
 | Cooling capacity | `kW-th` | Supplied by mechanical units. Must exceed heat load. |
-| Tech Tokens | `TT` | Prestige currency. Spent in the tech tree. Never purchasable with money. |
+| Tech Tokens | `TT` | Prestige currency earned through Site Sales and spent in the tech tree. Optional packs supplement progress but never gate content. |
 
 ### 4.2 Derived metrics (shown in a persistent top bar)
 
@@ -81,7 +81,11 @@ Mech_load_kW    = sum(cooling_unit.power_draw)
 Total_load_kW   = IT_load_kW + Mech_load_kW + losses
 PUE             = Total_load_kW / IT_load_kW          # target: drive from 2.0 toward 1.10
 Heat_load_kWth  = IT_load_kW * 1.0                    # 1:1, keep it simple
-Uptime          = rolling % over last 24h game time   # display as nines: 99.9% ... 99.999%
+Reliability     = min(sum(equipment + tech uptime bonuses), 0.999%)
+Power_penalty   = (1 - throttle) * 10%
+Cooling_penalty = (1 - clamp(cooling_capacity / heat_load, 0, 1)) * 8%
+Trip_penalty    = tripped_IT_ratio * 15%
+Uptime          = clamp(99% + Reliability - Power_penalty - Cooling_penalty - Trip_penalty, 50%, 99.999%)
 Revenue_per_sec = Compute_rate * contract_rate * uptime_mult * tech_mult
 ```
 
@@ -90,34 +94,40 @@ Revenue_per_sec = Compute_rate * contract_rate * uptime_mult * tech_mult
 - `Cooling_capacity < Heat_load_kWth` → thermal alarm; after 30s, racks start tripping offline one by one until load fits.
 - Both are recoverable by buying capacity. No permanent loss. Never punish the player into quitting.
 
-### 4.3 Unit catalog (v1 — exactly 9 units, do not add more)
+### 4.3 Unit catalog (v1 — 15 units)
 
 **IT (produces Compute, consumes Power, produces Heat)**
 1. `Rack — 1U Server Shelf` — entry unit
 2. `Rack — Blade Chassis` — 4x compute, 3x power
 3. `Rack — GPU Pod` — 20x compute, 12x power, 2x heat coefficient
+4. `Rack — Edge Microcluster` — efficient post-GPU compute tier
+5. `Rack — AI Superpod` — campus-scale compute with high heat output
 
 **Electrical (supplies Power capacity)**
-4. `PDU` — cheap, small kW
-5. `UPS + Transformer` — medium kW, +2% uptime
-6. `Diesel Generator` — large kW, +1.5% uptime, small ongoing fuel cost
+6. `PDU` — cheap, small kW
+7. `UPS + Transformer` — medium kW, +0.025% uptime each
+8. `Diesel Generator` — large kW, +0.015% uptime each, small ongoing fuel cost
+9. `Modular Substation` — dense medium-voltage capacity
+10. `Grid Battery Farm` — top-tier capacity without fuel burn
 
 **Mechanical (supplies Cooling capacity, consumes Power)**
-7. `CRAC Unit` — cheap, poor efficiency (high kW draw per kW-th)
-8. `Chilled Water Plant` — medium, better efficiency
-9. `Free Cooling Economizer` — expensive, near-zero draw, capacity varies with the site's climate modifier
+11. `CRAC Unit` — cheap, poor efficiency (high kW draw per kW-th)
+12. `Chilled Water Plant` — medium, better efficiency
+13. `Free Cooling Economizer` — expensive, near-zero draw, capacity varies with the site's climate modifier
+14. `In-Row Cooling Array` — efficient close-coupled cooling
+15. `Immersion Cooling Plant` — top-tier high-density cooling
 
-Each unit has: `count`, `base_cost`, `cost_growth`, and its own effect stat. Nothing else.
+Advanced equipment is never hard-locked by prestige. Its high cash price creates a soft gate. The first two Electrical, Mechanical, and Compute research nodes each reduce their matching Facility equipment costs by 15%, allowing the 12 TT earned from the first Site Sale to make one category 30% cheaper immediately.
 
 ### 4.4 Site tiers (prestige ladder — 5 tiers, v1 ships all 5)
 
 | Tier | Name | Climate modifier (economizer effectiveness) | Unlock cost |
 |---|---|---|---|
 | 1 | Rented Closet | 0.2 | start |
-| 2 | Colo Suite | 0.4 | 5 TT |
-| 3 | Purpose-Built Facility | 0.6 | 40 TT |
-| 4 | Nordic Campus | 1.0 | 250 TT |
-| 5 | Hyperscale Region | 0.8 (but 10x base contract rate) | 1,500 TT |
+| 2 | Colo Suite | 0.4, 1.25x contract rate | 5 TT |
+| 3 | Purpose-Built Facility | 0.6, 1.75x contract rate | 30 TT |
+| 4 | Nordic Campus | 1.0, 2.5x contract rate | 120 TT |
+| 5 | Hyperscale Region | 0.8, 10x base contract rate | 500 TT |
 
 ### 4.5 Tech tree (20 nodes, v1)
 
@@ -154,24 +164,40 @@ cost(n) = base_cost * pow(cost_growth, n)      # cost_growth in [1.07, 1.15]
 # Production
 compute_rate = sum(unit.base_compute * unit.count) * tech_compute_mult
 throttle     = clamp(power_capacity / total_load_kW, 0.0, 1.0)
-revenue_per_sec = compute_rate * throttle * contract_rate * uptime_mult * site_mult
+balance_mult = 1.72  # Constant; revenue never decays as lifetime revenue rises
+revenue_per_sec = compute_rate * throttle * contract_rate * uptime_mult * site_mult * balance_mult
+
+# Active play — RUN JOB
+manual_job_reward = max(1.0, revenue_per_sec * 0.25)
+manual_job_charges = 5 maximum, regenerating 4 per second
+# Sustained active play adds roughly 100% income and targets a 10–15 min first Site Sale.
+
+# Cash-based JOB OPS upgrades reset on Site Sale:
+# Contract Optimizer: +5% job value/level (5 levels)
+# Queue Expansion: +2 stored jobs/level (4 levels)
+# Dispatch Firmware: +5% recharge speed/level (4 levels)
+# Even fully upgraded sustained clicking is capped at 2.5x total income.
 
 # Offline earnings
 offline_seconds = clamp(now - last_seen, 0, offline_cap)
 offline_cap     = 7200                      # 2 hours default
                 + 7200 if remove_ads_owned  # 4 hours total
-offline_revenue = revenue_per_sec * offline_seconds * 0.5   # 50% rate offline
+offline_rate    = 0.50
+                + up to 0.25 from PUE       # PUE 2.0 → 1.0
+                + up to 0.15 from uptime    # UP 99.0% → 99.999%
+offline_rate    = clamp(offline_rate, 0.50, 0.90)
+offline_revenue = revenue_per_sec * offline_seconds * offline_rate
 # Rewarded ad on the return screen: multiply collected amount by 2
 
 # Prestige (Site Sale)
-tokens_earned = floor(12 * pow(lifetime_revenue_this_site / 1e9, 0.5))
-# Requires lifetime_revenue_this_site >= 1e9 before the button unlocks
+tokens_earned = floor(12 * pow(lifetime_revenue_this_site / 1e6, 0.5))
+# Requires lifetime_revenue_this_site >= 1e6 before the button unlocks
 
 # Tech multipliers stack multiplicatively within a branch, additively across branches
 ```
 
 **Pacing targets — tune until these hold:**
-- First Site Sale reachable in **90–150 minutes** of total play.
+- First Site Sale reachable in **20–30 minutes** of total play, targeting **25 minutes**.
 - Each subsequent site tier: **1.5x–2x** the previous time-to-prestige.
 - Full tech tree: **25–40 hours**. That is the content ceiling for v1.
 
@@ -220,7 +246,8 @@ rackline/
 │   ├── units.json
 │   ├── tech_tree.json
 │   ├── sites.json
-│   └── events.json
+│   ├── events.json
+│   └── balance.json             # Cross-system pacing constants
 ├── scripts/
 │   ├── autoload/
 │   │   ├── GameState.gd     # single source of truth, holds the save dict
@@ -232,7 +259,7 @@ rackline/
 │   └── systems/
 ├── scenes/
 │   ├── Main.tscn
-│   ├── ui/ (TopBar, UnitList, TechTree, SiteSale, EventCard, ReturnScreen)
+│   ├── ui/ (TopBar, UnitList, JobOps, TechTree, SiteSale, EventCard, ReturnScreen)
 └── tests/
     └── test_economy.gd      # GUT tests for every formula in §5
 ```
@@ -247,21 +274,22 @@ rackline/
 
 ---
 
-## 8. UI (5 screens, nothing more)
+## 8. UI (6 screens, nothing more)
 
-1. **Facility** (home) — top bar metrics, three tabs (IT / Electrical / Mechanical), buy buttons with cost and effect delta, boost button
-2. **Tech Tree** — 4 branches, node cards, TT balance
-3. **Site Sale** — projected TT, what carries over, confirm
-4. **Return Screen** — offline earnings, 2x ad button
-5. **Settings** — sound, remove-ads, restore purchases, privacy policy link, credits
+1. **Facility** (home) — top bar metrics, a clickable pixel-art data center that changes with the selected site and runs the active-play job, three tabs (IT / Electrical / Mechanical), buy buttons with cost and effect delta, boost button
+2. **Job Ops** — three cash-based active-clicking upgrades, current tap reward, queue capacity, and recharge rate
+3. **Tech Tree** — 4 branches, node cards, TT balance
+4. **Site Sale** — projected TT, what carries over, confirm
+5. **Return Screen** — offline earnings, 2x ad button
+6. **Settings** — sound, remove-ads, restore purchases, privacy policy link, credits
 
-Visual direction: dark NOC-monitor aesthetic. Monospace numerals. One accent color for "healthy," one for "at capacity," one for "alarm." Every number that changes must animate — that is the dopamine, and it is free.
+Visual direction: retro pixel-art terminal aesthetic (chosen 2026-08-17, supersedes the earlier flat dark-NOC direction). Blocky, hard-edged panels and buttons (no rounded corners, no anti-aliasing), a small fixed retro palette, and a chunky pixel font. Procedurally-generated pixel icons only — no sourced/hand-drawn art assets, keeping the zero-art-burden premise from §1 intact. One accent color for "healthy," one for "at capacity," one for "alarm," carried over unchanged from the previous palette. Every number that changes must animate — that is the dopamine, and it is free.
 
 ---
 
 ## 9. Scope lock
 
-**In v1:** everything in §4 exactly as listed — 9 units, 5 sites, 20 tech nodes, 5 events, 5 screens.
+**In v1:** everything in §4 exactly as listed — 9 units, 5 sites, 20 tech nodes, 5 events, 6 screens.
 
 **Explicitly out of v1 (do not build, do not "prepare for"):** multiplayer, leaderboards, cloud save, daily quests, seasonal events, achievements, a tutorial beyond 3 tooltips, localization beyond English + Turkish, iOS-specific features, custom shaders, sound design beyond 6 UI sounds and one ambient loop.
 
@@ -276,7 +304,7 @@ If a feature is not in §4, the answer is no. Ship, then decide from data.
 | M0 | Setup | Godot 4.6 project, git repo, Android export template, `data/*.json` stubs, GUT installed | `godot --headless --export-debug Android build.apk` succeeds and runs on a phone | 2–3 h |
 | M1 | Economy core | `Economy.gd` + `test_economy.gd`, no UI | All §5 formulas pass unit tests; a headless sim of 2 h of play produces sane numbers | 8–12 h |
 | M2 | Playable loop | Facility screen, 9 units, buy/upgrade, throttle + thermal trip, save/load, offline | You can play 45 min and hit a real power/cooling crunch that you must solve | 15–20 h |
-| M3 | Meta | Site Sale, tech tree, 5 sites, 20 nodes, events | First prestige reachable in 90–150 min; tech tree fully navigable | 15–20 h |
+| M3 | Meta | Site Sale, tech tree, 5 sites, 20 nodes, events | First prestige reachable in 20–30 min; tech tree fully navigable | 15–20 h |
 | M4 | Monetize + ship | AdMob, IAP, GameAnalytics, 5 UI sounds, store listing, privacy policy | Test ads serve; test purchase completes; analytics events land in dashboard | 15–20 h |
 
 **Total: ~60–75 hours → roughly 8–10 weeks at 8 h/week.**

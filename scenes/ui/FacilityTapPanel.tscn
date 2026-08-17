@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/FacilityTapPanel.gd" id="1_facility_tap"]
+
+[node name="FacilityTapPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 112)
+mouse_filter = 0
+script = ExtResource("1_facility_tap")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 3
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="SiteLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.38, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 8
+text = "SITE 1 | RENTED CLOSET"
+horizontal_alignment = 1
+
+[node name="ArtSpacer" type="Control" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ActionLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.22, 0.77, 0.37, 1)
+theme_override_font_sizes/font_size = 8
+text = "TAP DATA CENTER +$1.00 | 5/5"
+horizontal_alignment = 1

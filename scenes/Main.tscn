@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://df5w3s8mty10c"]
+[gd_scene load_steps=9 format=3 uid="uid://df5w3s8mty10c"]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://b8xq4a3yt6w5m" path="res://scenes/ui/TopBar.tscn" id="2_topbar"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cx4y8a2qt7n0p" path="res://scenes/ui/SiteSale.tscn" id="6_sitesale"]
 [ext_resource type="PackedScene" uid="uid://cx6y8v2qg9m2p" path="res://scenes/ui/ReturnScreen.tscn" id="7_return"]
 [ext_resource type="PackedScene" uid="uid://dg7y8k4rt1w3p" path="res://scenes/ui/Settings.tscn" id="8_settings"]
+[ext_resource type="PackedScene" path="res://scenes/ui/JobOps.tscn" id="9_job_ops"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -34,14 +35,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 8
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="TopBar" parent="Margin/VBox" instance=ExtResource("2_topbar")]
 layout_mode = 2
@@ -57,6 +58,10 @@ size_flags_vertical = 3
 [node name="UnitList" parent="Margin/VBox/ViewContainer" instance=ExtResource("4_unitlist")]
 layout_mode = 2
 
+[node name="JobOps" parent="Margin/VBox/ViewContainer" instance=ExtResource("9_job_ops")]
+visible = false
+layout_mode = 2
+
 [node name="TechTree" parent="Margin/VBox/ViewContainer" instance=ExtResource("5_techtree")]
 visible = false
 layout_mode = 2
@@ -67,39 +72,47 @@ layout_mode = 2
 
 [node name="NavBar" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 3
 
 [node name="FacilityNavBtn" type="Button" parent="Margin/VBox/NavBar"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 8
 text = "FACILITY"
+
+[node name="JobNavBtn" type="Button" parent="Margin/VBox/NavBar"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "JOB OPS"
 
 [node name="TechNavBtn" type="Button" parent="Margin/VBox/NavBar"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 8
 text = "TECH TREE"
 
 [node name="SiteNavBtn" type="Button" parent="Margin/VBox/NavBar"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 8
 text = "SITE SALE"
 
 [node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="BoostBtn" type="Button" parent="Margin/VBox/Footer"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
-theme_override_font_sizes/font_size = 14
-text = "ACTIVATE 2X BOOST (4 MIN)"
+theme_override_font_sizes/font_size = 9
+text = "2X BOOST 4 MIN  |  6 LEFT"
 
 [node name="ReturnScreen" parent="." instance=ExtResource("7_return")]
 visible = false

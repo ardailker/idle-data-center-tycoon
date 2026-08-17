@@ -16,36 +16,45 @@ color = Color(0, 0, 0, 0.784314)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 64
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 32
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 14
 alignment = 1
 
 [node name="TitleLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 17
 text = "WELCOME BACK, ENGINEER"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="TimeLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 text = "You were offline for 2h 00m"
 horizontal_alignment = 1
 
 [node name="EarningsLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.77, 0.37, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 24
 text = "+$0.00"
 horizontal_alignment = 1
+
+[node name="EfficiencyLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 9
+text = "OFFLINE EFFICIENCY: 50%\nPUE +0% | UP +0%"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Actions" type="VBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
@@ -55,11 +64,12 @@ theme_override_constants/separation = 12
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 2
 text = "WATCH AD FOR 2X REVENUE"
 
 [node name="ClaimBtn" type="Button" parent="Margin/VBox/Actions"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 text = "CLAIM (1X)"

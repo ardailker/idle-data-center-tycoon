@@ -15,7 +15,7 @@
       "name": "Colo Suite",
       "climate_modifier": 0.4,
       "unlock_cost_tt": 5,
-      "contract_multiplier": 1.0,
+      "contract_multiplier": 1.25,
       "description": "Dedicated caged footprint inside a commercial colocation facility."
     },
     {
@@ -23,8 +23,8 @@
       "id": "purpose_built",
       "name": "Purpose-Built Facility",
       "climate_modifier": 0.6,
-      "unlock_cost_tt": 40,
-      "contract_multiplier": 1.0,
+      "unlock_cost_tt": 30,
+      "contract_multiplier": 1.75,
       "description": "Standalone Tier III data center with dedicated utility feeds."
     },
     {
@@ -32,8 +32,8 @@
       "id": "nordic_campus",
       "name": "Nordic Campus",
       "climate_modifier": 1.0,
-      "unlock_cost_tt": 250,
-      "contract_multiplier": 1.0,
+      "unlock_cost_tt": 120,
+      "contract_multiplier": 2.5,
       "description": "Sub-arctic facility with 100% free ambient cooling efficiency."
     },
     {
@@ -41,7 +41,7 @@
       "id": "hyperscale_region",
       "name": "Hyperscale Region",
       "climate_modifier": 0.8,
-      "unlock_cost_tt": 1500,
+      "unlock_cost_tt": 500,
       "contract_multiplier": 10.0,
       "description": "Multi-building hyperscale availability zone with 10x contract rate."
     }

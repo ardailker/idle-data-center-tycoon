@@ -10,7 +10,9 @@
           "cost_tt": 1,
           "effect_type": "power_loss_reduction",
           "effect_value": 0.05,
-          "description": "Reduces distribution losses by 5%."
+          "facility_category": "electrical",
+          "facility_cost_discount": 0.15,
+          "description": "Reduces distribution losses by 5% and electrical equipment costs by 15%."
         },
         {
           "id": "elec_2",
@@ -18,15 +20,17 @@
           "cost_tt": 4,
           "effect_type": "power_loss_reduction",
           "effect_value": 0.10,
-          "description": "Eliminates AC/DC transformation steps, reducing loss by 10%."
+          "facility_category": "electrical",
+          "facility_cost_discount": 0.15,
+          "description": "Reduces losses by 10% and electrical equipment costs by another 15%."
         },
         {
           "id": "elec_3",
           "name": "Lithium UPS",
           "cost_tt": 15,
           "effect_type": "uptime_bonus",
-          "effect_value": 0.01,
-          "description": "Increases overall system uptime reliability by +1.0%."
+          "effect_value": 0.001,
+          "description": "Increases overall system uptime by +0.100%."
         },
         {
           "id": "elec_4",
@@ -56,7 +60,9 @@
           "cost_tt": 1,
           "effect_type": "cooling_efficiency_bonus",
           "effect_value": 0.10,
-          "description": "Improves cooling effectiveness by 10%."
+          "facility_category": "mechanical",
+          "facility_cost_discount": 0.15,
+          "description": "Improves cooling by 10% and mechanical equipment costs by 15%."
         },
         {
           "id": "mech_2",
@@ -64,7 +70,9 @@
           "cost_tt": 4,
           "effect_type": "mech_power_reduction",
           "effect_value": 0.15,
-          "description": "Reduces mechanical power draw by 15%."
+          "facility_category": "mechanical",
+          "facility_cost_discount": 0.15,
+          "description": "Reduces cooling power draw and mechanical equipment costs by 15%."
         },
         {
           "id": "mech_3",
@@ -102,7 +110,9 @@
           "cost_tt": 1,
           "effect_type": "compute_multiplier",
           "effect_value": 0.10,
-          "description": "Increases compute output by 10%."
+          "facility_category": "it",
+          "facility_cost_discount": 0.15,
+          "description": "Increases compute by 10% and IT equipment costs drop by 15%."
         },
         {
           "id": "comp_2",
@@ -110,7 +120,9 @@
           "cost_tt": 4,
           "effect_type": "compute_multiplier",
           "effect_value": 0.15,
-          "description": "Optimized workload orchestration boosts compute by 15%."
+          "facility_category": "it",
+          "facility_cost_discount": 0.15,
+          "description": "Boosts compute by 15% and IT equipment costs drop another 15%."
         },
         {
           "id": "comp_3",
@@ -147,8 +159,8 @@
           "name": "Automated Remediation",
           "cost_tt": 1,
           "effect_type": "uptime_bonus",
-          "effect_value": 0.005,
-          "description": "Automated alert recovery adds +0.5% uptime."
+          "effect_value": 0.0005,
+          "description": "Automated alert recovery adds +0.050% uptime."
         },
         {
           "id": "ops_2",
@@ -171,8 +183,8 @@
           "name": "Staffed NOC",
           "cost_tt": 50,
           "effect_type": "uptime_bonus",
-          "effect_value": 0.015,
-          "description": "24/7 operations center guarantees +1.5% uptime."
+          "effect_value": 0.0015,
+          "description": "24/7 operations center adds +0.150% uptime."
         },
         {
           "id": "ops_5",

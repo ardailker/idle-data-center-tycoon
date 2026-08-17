@@ -1,0 +1,144 @@
+[gd_resource type="Theme" load_steps=10 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/PressStart2P-Regular.ttf" id="1_pixelfont"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.043, 0.055, 0.047, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.18, 0.28, 0.21, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
+bg_color = Color(0.09, 0.13, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.77, 0.37, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.13, 0.2, 0.15, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.98, 0.6, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.2, 0.77, 0.37, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.98, 0.6, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
+bg_color = Color(0.07, 0.08, 0.07, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.25, 0.22, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_checkbox"]
+bg_color = Color(0.09, 0.13, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.77, 0.37, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll_bg"]
+bg_color = Color(0.06, 0.08, 0.07, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.18, 0.28, 0.21, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll_grabber"]
+bg_color = Color(0.2, 0.77, 0.37, 1)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 0
+corner_radius_bottom_left = 0
+anti_aliasing = false
+
+[resource]
+default_font = ExtResource("1_pixelfont")
+default_font_size = 10
+Panel/styles/panel = SubResource("StyleBoxFlat_panel")
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")
+Button/styles/normal = SubResource("StyleBoxFlat_button_normal")
+Button/styles/hover = SubResource("StyleBoxFlat_button_hover")
+Button/styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+Button/styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+Button/colors/font_color = Color(0.85, 1, 0.9, 1)
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(0.043, 0.055, 0.047, 1)
+Button/colors/font_disabled_color = Color(0.42, 0.46, 0.42, 1)
+Label/colors/font_color = Color(0.82, 0.98, 0.87, 1)
+CheckBox/styles/normal = SubResource("StyleBoxFlat_checkbox")
+CheckBox/colors/font_color = Color(0.82, 0.98, 0.87, 1)
+ScrollContainer/styles/panel = SubResource("StyleBoxFlat_scroll_bg")
+VScrollBar/styles/scroll = SubResource("StyleBoxFlat_scroll_bg")
+VScrollBar/styles/grabber = SubResource("StyleBoxFlat_scroll_grabber")
+VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_scroll_grabber")
+VScrollBar/styles/grabber_pressed = SubResource("StyleBoxFlat_scroll_grabber")

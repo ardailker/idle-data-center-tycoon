@@ -2,50 +2,77 @@ extends SceneTree
 
 const Economy = preload("res://scripts/autoload/Economy.gd")
 
-# Headless 2-Hour Gameplay Balance Simulation (§10 M1 Deliverable)
+# Headless gameplay balance simulation (§10 M1 Deliverable)
 
 func _init() -> void:
 	print("==================================================")
-	print("STARTING HEADLESS 2-HOUR GAMEPLAY SIMULATION (M1)")
+	print("STARTING HEADLESS GAMEPLAY BALANCE SIMULATION (M1)")
 	print("==================================================")
 	
-	var sim_result := run_simulation(7200) # 7200 seconds = 2 hours
+	var sim_result := run_simulation(1800) # Upper edge of the 20-30 minute target
+	var post_prestige_result := run_simulation(1800, false, {
+		"site_tier": 2,
+		"compute_multiplier": 1.265,
+		"facility_discounts": {"it": 0.30}
+	})
+	var active_run_result := run_simulation(1800, false, {"manual_income_multiplier": 2.0})
 	
 	print("\n==================================================")
 	print("SIMULATION COMPLETED IN %d SIMULATED SECONDS" % sim_result["total_seconds"])
 	print("Lifetime Revenue: $%s (Raw: %.0f)" % [Economy.format_magnitude(sim_result["lifetime_revenue"]), sim_result["lifetime_revenue"]])
 	print("Final Revenue Rate: $%s/s" % Economy.format_magnitude(sim_result["revenue_per_sec"]))
 	print("Final PUE: %.3f" % sim_result["pue"])
-	print("Time to $1B (First Prestige Target): %s" % (
+	print("Time to First Prestige: %s" % (
 		"%d mins (%d sec)" % [sim_result["time_to_prestige_sec"] / 60, sim_result["time_to_prestige_sec"]]
 		if sim_result["time_to_prestige_sec"] > 0
-		else "Not reached within 2h"
+		else "Not reached within simulation"
 	))
 	print("Prestige Tokens Available: %d TT" % sim_result["prestige_tokens"])
 	print("Unit Counts: %s" % JSON.stringify(sim_result["unit_counts"]))
+	print("Post-Prestige Site Sale: %d mins (%d sec)" % [
+		post_prestige_result["time_to_prestige_sec"] / 60,
+		post_prestige_result["time_to_prestige_sec"]
+	])
+	print("Very Active First Site Sale: %d mins (%d sec)" % [
+		active_run_result["time_to_prestige_sec"] / 60,
+		active_run_result["time_to_prestige_sec"]
+	])
 	print("==================================================")
 	
-	quit(0 if sim_result["sane"] else 1)
+	quit(0 if sim_result["sane"] and post_prestige_result["sane"] and active_run_result["sane"] else 1)
 
-static func run_simulation(duration_seconds: int = 7200, log_checkpoints: bool = true) -> Dictionary:
+static func run_simulation(duration_seconds: int = 7200, log_checkpoints: bool = true, scenario: Dictionary = {}) -> Dictionary:
 	# Load catalog data
 	var units_dict: Dictionary = _load_catalog("res://data/units.json").get("units_dict", {})
 	var sites_dict: Dictionary = _load_catalog("res://data/sites.json").get("sites_dict", {})
+	var balance: Dictionary = _load_catalog("res://data/balance.json").get("data", {})
+	var prestige_requirement: float = float(balance.get("prestige", {}).get("revenue_requirement", 1.0e6))
+	var prestige_base_tokens: int = int(balance.get("prestige", {}).get("base_tokens", 12))
+	var balance_revenue_multiplier: float = float(balance.get("economy", {}).get("revenue_multiplier", 1.0))
+	var facility_discounts: Dictionary = scenario.get("facility_discounts", {})
+	var tech_compute_multiplier: float = float(scenario.get("compute_multiplier", 1.0))
+	var manual_income_multiplier: float = max(float(scenario.get("manual_income_multiplier", 1.0)), 1.0)
 	
 	# Initial State
 	var cash: float = 15.0
 	var lifetime_revenue: float = 0.0
-	var site_tier: int = 1
+	var site_tier: int = int(scenario.get("site_tier", 1))
 	var unit_counts: Dictionary = {
 		"rack_1u": 1,
 		"blade_chassis": 0,
 		"gpu_pod": 0,
+		"edge_cluster": 0,
+		"ai_superpod": 0,
 		"pdu": 1,
 		"ups_transformer": 0,
 		"diesel_gen": 0,
+		"modular_substation": 0,
+		"battery_farm": 0,
 		"crac_unit": 1,
 		"chilled_water_plant": 0,
-		"economizer": 0
+		"economizer": 0,
+		"inrow_cooling": 0,
+		"immersion_plant": 0
 	}
 	
 	var time_to_prestige_sec: int = -1
@@ -68,22 +95,25 @@ static func run_simulation(duration_seconds: int = 7200, log_checkpoints: bool =
 		var cooling_cap: float = Economy.calculate_cooling_capacity(unit_counts, units_dict, climate_mod)
 		
 		var throttle: float = Economy.calculate_throttle(power_cap, total_load)
-		var compute: float = Economy.calculate_compute_rate(unit_counts, units_dict)
-		var uptime: float = Economy.calculate_uptime(unit_counts, units_dict)
+		var compute: float = Economy.calculate_compute_rate(unit_counts, units_dict, tech_compute_multiplier)
+		var cooling_capacity_ratio: float = cooling_cap / max(heat_load, 0.001)
+		var uptime: float = Economy.calculate_uptime(unit_counts, units_dict, 0.0, 0.0, throttle, cooling_capacity_ratio)
 		
 		current_rev_sec = Economy.calculate_revenue_per_sec(
 			compute,
 			throttle,
 			1.0, # base contract
 			uptime,
-			site_contract_mult
+			site_contract_mult,
+			balance_revenue_multiplier
 		)
+		current_rev_sec = max(current_rev_sec - Economy.calculate_fuel_cost_per_sec(unit_counts, units_dict), 0.0)
 		
 		# 2. Earn revenue for this second
-		cash += current_rev_sec
-		lifetime_revenue += current_rev_sec
+		cash += current_rev_sec * manual_income_multiplier
+		lifetime_revenue += current_rev_sec * manual_income_multiplier
 		
-		if time_to_prestige_sec == -1 and lifetime_revenue >= 1.0e9:
+		if time_to_prestige_sec == -1 and lifetime_revenue >= prestige_requirement:
 			time_to_prestige_sec = sec
 		
 		# 3. Intelligent player purchase strategy
@@ -92,23 +122,18 @@ static func run_simulation(duration_seconds: int = 7200, log_checkpoints: bool =
 		while max_purchases_per_step > 0 and cash > 10.0:
 			var power_headroom: float = power_cap - total_load
 			var cooling_headroom: float = cooling_cap - heat_load
-			var bought_something: bool = false
+			var purchase_cost: float = 0.0
 			
 			if power_headroom < 5.0 or throttle < 0.99:
-				bought_something = _try_buy_best_unit(cash, unit_counts, units_dict, ["diesel_gen", "ups_transformer", "pdu"], func(cost):
-					cash -= cost
-				)
+				purchase_cost = _try_buy_best_unit(cash, unit_counts, units_dict, ["battery_farm", "modular_substation", "diesel_gen", "ups_transformer", "pdu"], 1.0 - float(facility_discounts.get("electrical", 0.0)))
 			elif cooling_headroom < 5.0:
-				bought_something = _try_buy_best_unit(cash, unit_counts, units_dict, ["economizer", "chilled_water_plant", "crac_unit"], func(cost):
-					cash -= cost
-				)
+				purchase_cost = _try_buy_best_unit(cash, unit_counts, units_dict, ["immersion_plant", "inrow_cooling", "economizer", "chilled_water_plant", "crac_unit"], 1.0 - float(facility_discounts.get("mechanical", 0.0)))
 			else:
-				bought_something = _try_buy_best_unit(cash, unit_counts, units_dict, ["gpu_pod", "blade_chassis", "rack_1u"], func(cost):
-					cash -= cost
-				)
+				purchase_cost = _try_buy_best_unit(cash, unit_counts, units_dict, ["ai_superpod", "edge_cluster", "gpu_pod", "blade_chassis", "rack_1u"], 1.0 - float(facility_discounts.get("it", 0.0)))
 			
-			if not bought_something:
+			if purchase_cost <= 0.0:
 				break
+			cash -= purchase_cost
 			
 			# Recalculate dynamic loads after purchase
 			it_load = Economy.calculate_it_load_kw(unit_counts, units_dict)
@@ -118,9 +143,11 @@ static func run_simulation(duration_seconds: int = 7200, log_checkpoints: bool =
 			power_cap = Economy.calculate_power_capacity(unit_counts, units_dict)
 			cooling_cap = Economy.calculate_cooling_capacity(unit_counts, units_dict, climate_mod)
 			throttle = Economy.calculate_throttle(power_cap, total_load)
-			compute = Economy.calculate_compute_rate(unit_counts, units_dict)
-			uptime = Economy.calculate_uptime(unit_counts, units_dict)
-			current_rev_sec = Economy.calculate_revenue_per_sec(compute, throttle, 1.0, uptime, site_contract_mult)
+			compute = Economy.calculate_compute_rate(unit_counts, units_dict, tech_compute_multiplier)
+			cooling_capacity_ratio = cooling_cap / max(heat_load, 0.001)
+			uptime = Economy.calculate_uptime(unit_counts, units_dict, 0.0, 0.0, throttle, cooling_capacity_ratio)
+			current_rev_sec = Economy.calculate_revenue_per_sec(compute, throttle, 1.0, uptime, site_contract_mult, balance_revenue_multiplier)
+			current_rev_sec = max(current_rev_sec - Economy.calculate_fuel_cost_per_sec(unit_counts, units_dict), 0.0)
 			max_purchases_per_step -= 1
 		
 		# 4. Checkpoint logging
@@ -138,7 +165,7 @@ static func run_simulation(duration_seconds: int = 7200, log_checkpoints: bool =
 			])
 	
 	var sane: bool = not is_nan(cash) and not is_inf(cash) and cash >= 0.0 and current_pue >= 1.0 and current_pue <= 3.0
-	var prestige_tokens: int = Economy.calculate_prestige_tokens(lifetime_revenue)
+	var prestige_tokens: int = Economy.calculate_prestige_tokens(lifetime_revenue, prestige_requirement, prestige_base_tokens)
 	
 	return {
 		"total_seconds": duration_seconds,
@@ -157,20 +184,20 @@ static func _try_buy_best_unit(
 	unit_counts: Dictionary,
 	units_dict: Dictionary,
 	candidate_ids: Array,
-	on_buy: Callable
-) -> bool:
+	base_cost_multiplier: float = 1.0
+) -> float:
 	for unit_id in candidate_ids:
 		var u: Dictionary = units_dict.get(unit_id, {})
 		if u.is_empty():
 			continue
 		var count: int = unit_counts.get(unit_id, 0)
 		var growth: float = float(u.get("cost_growth", 1.12))
-		var cost: float = Economy.calculate_unit_cost(float(u.get("base_cost", 10.0)), growth, count)
+		var discounted_base_cost: float = float(u.get("base_cost", 10.0)) * clamp(base_cost_multiplier, 0.40, 1.0)
+		var cost: float = Economy.calculate_unit_cost(discounted_base_cost, growth, count)
 		if current_cash >= cost:
 			unit_counts[unit_id] = count + 1
-			on_buy.call(cost)
-			return true
-	return false
+			return cost
+	return 0.0
 
 static func _load_catalog(path: String) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)

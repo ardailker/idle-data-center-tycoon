@@ -52,7 +52,7 @@ func _on_event_started(event: Dictionary) -> void:
 	if cash_ratio > 0.0:
 		var repair_cost: float = GameState.state["cash"] * cash_ratio
 		cash_fix_btn.visible = true
-		cash_fix_btn.text = "PAY REPAIR ($%s)" % Economy.format_magnitude(repair_cost)
+		cash_fix_btn.text = "PAY $%s" % Economy.format_magnitude(repair_cost)
 	else:
 		cash_fix_btn.visible = false
 	
@@ -73,4 +73,10 @@ func _on_cash_fix_pressed() -> void:
 		visible = false
 
 func _on_dismiss_pressed() -> void:
+	# Instant gift events (no duration, no repair option) have already applied their
+	# effect and have nothing left to "ride out" — clear them so the next event can spawn.
+	var has_duration: bool = float(active_event_data.get("duration_sec", 0)) > 0.0
+	var needs_repair: bool = bool(active_event_data.get("ad_reward_fix", false)) or float(active_event_data.get("cash_repair_cost_ratio", 0.0)) > 0.0
+	if not has_duration and not needs_repair:
+		GameState.resolve_event(false, false)
 	visible = false

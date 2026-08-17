@@ -34,6 +34,28 @@
       "description": "AI & HPC GPU cluster: 20x compute, 12x power, 2x heat output."
     },
     {
+      "id": "edge_cluster",
+      "name": "Rack - Edge Microcluster",
+      "category": "it",
+      "base_cost": 75000.0,
+      "cost_growth": 1.115,
+      "base_compute": 120.0,
+      "power_draw": 28.0,
+      "heat_coefficient": 1.15,
+      "description": "Integrated edge cluster with better compute density than individual GPU pods."
+    },
+    {
+      "id": "ai_superpod",
+      "name": "Rack - AI Superpod",
+      "category": "it",
+      "base_cost": 900000.0,
+      "cost_growth": 1.11,
+      "base_compute": 1200.0,
+      "power_draw": 220.0,
+      "heat_coefficient": 1.40,
+      "description": "Campus-scale accelerated compute with a demanding heat load."
+    },
+    {
       "id": "pdu",
       "name": "PDU",
       "category": "electrical",
@@ -51,9 +73,9 @@
       "base_cost": 300.0,
       "cost_growth": 1.09,
       "power_capacity": 10.0,
-      "uptime_bonus": 0.02,
+      "uptime_bonus": 0.00025,
       "fuel_cost_per_sec": 0.0,
-      "description": "Uninterruptible power supply and step-down transformer (+2% uptime)."
+      "description": "Uninterruptible power supply and transformer (+0.025% uptime each)."
     },
     {
       "id": "diesel_gen",
@@ -62,9 +84,31 @@
       "base_cost": 4000.0,
       "cost_growth": 1.09,
       "power_capacity": 50.0,
-      "uptime_bonus": 0.015,
+      "uptime_bonus": 0.00015,
       "fuel_cost_per_sec": 0.5,
-      "description": "Heavy backup generator (+1.5% uptime, small fuel burn)."
+      "description": "Backup generator adds +0.015% uptime with a small fuel burn."
+    },
+    {
+      "id": "modular_substation",
+      "name": "Modular Substation",
+      "category": "electrical",
+      "base_cost": 90000.0,
+      "cost_growth": 1.085,
+      "power_capacity": 300.0,
+      "uptime_bonus": 0.00010,
+      "fuel_cost_per_sec": 0.0,
+      "description": "Prefabricated medium-voltage block supplying dense, reliable capacity."
+    },
+    {
+      "id": "battery_farm",
+      "name": "Grid Battery Farm",
+      "category": "electrical",
+      "base_cost": 1100000.0,
+      "cost_growth": 1.08,
+      "power_capacity": 2500.0,
+      "uptime_bonus": 0.00020,
+      "fuel_cost_per_sec": 0.0,
+      "description": "Large battery storage system with high capacity and no fuel burn."
     },
     {
       "id": "crac_unit",
@@ -98,6 +142,28 @@
       "power_draw": 0.2,
       "climate_dependent": true,
       "description": "Ambient air heat exchange; capacity scales with local site climate."
+    },
+    {
+      "id": "inrow_cooling",
+      "name": "In-Row Cooling Array",
+      "category": "mechanical",
+      "base_cost": 85000.0,
+      "cost_growth": 1.095,
+      "cooling_capacity": 250.0,
+      "power_draw": 22.0,
+      "climate_dependent": false,
+      "description": "Close-coupled cooling removes heat beside the racks efficiently."
+    },
+    {
+      "id": "immersion_plant",
+      "name": "Immersion Cooling Plant",
+      "category": "mechanical",
+      "base_cost": 1000000.0,
+      "cost_growth": 1.085,
+      "cooling_capacity": 2400.0,
+      "power_draw": 80.0,
+      "climate_dependent": false,
+      "description": "Industrial dielectric-fluid plant for the largest compute deployments."
     }
   ]
 }

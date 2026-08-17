@@ -17,20 +17,25 @@ func _ready() -> void:
 	pass
 
 func show_rewarded_ad(placement_tag: String, on_success_callback: Callable) -> void:
-	# In editor / non-mobile, simulate instant ad watch
+	# Desktop/editor builds are the explicit ad sandbox.
 	if OS.get_name() != "Android" and OS.get_name() != "iOS":
 		if on_success_callback.is_valid():
 			on_success_callback.call()
 		rewarded_video_earned_reward.emit(placement_tag, 1)
+		if Analytics:
+			Analytics.track_ad_impression("rewarded", placement_tag)
 		return
-	
-	# Future mobile plugin integration hooks in M4
-	if on_success_callback.is_valid():
-		on_success_callback.call()
+
+	# Release safety: only the future mobile SDK reward callback may grant this reward.
+	push_warning("Rewarded mobile ad SDK is not integrated; reward not granted for %s" % placement_tag)
+	rewarded_video_failed_to_load.emit(-1)
 
 func show_interstitial(placement_tag: String) -> void:
 	if OS.get_name() != "Android" and OS.get_name() != "iOS":
+		if Analytics:
+			Analytics.track_ad_impression("interstitial", placement_tag)
 		interstitial_closed.emit()
 		return
-	
+
+	push_warning("Interstitial mobile ad SDK is not integrated for %s" % placement_tag)
 	interstitial_closed.emit()

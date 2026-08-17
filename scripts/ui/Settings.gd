@@ -49,6 +49,17 @@ func _load_settings_ui() -> void:
 		remove_ads_btn.text = "REMOVE ADS ($2.99)\nNo Interstitials + 4h Offline Cap"
 		remove_ads_btn.disabled = false
 
+	var starter_owned: bool = bool(GameState.state.get("starter_pack_owned", false))
+	if starter_owned:
+		starter_pack_btn.text = "STARTER PACK — OWNED"
+		starter_pack_btn.disabled = true
+	elif int(GameState.state.get("prestige_count", 0)) < 1:
+		starter_pack_btn.text = "STARTER PACK — UNLOCKS AFTER FIRST SITE SALE"
+		starter_pack_btn.disabled = true
+	else:
+		starter_pack_btn.text = "STARTER PACK ($4.99)\n10 TT + 24h 2X Revenue Multiplier"
+		starter_pack_btn.disabled = false
+
 func _on_sfx_toggled(toggled_on: bool) -> void:
 	GameState.state["settings"]["sfx_enabled"] = toggled_on
 	if SaveManager:
@@ -66,8 +77,8 @@ func _on_haptics_toggled(toggled_on: bool) -> void:
 		SaveManager.save_game()
 
 func _buy_iap(sku: String) -> void:
-	GameState.process_iap_purchase(sku)
-	SoundManager.play_cash()
+	if GameState.process_iap_purchase(sku):
+		SoundManager.play_cash()
 	_load_settings_ui()
 
 func _on_restore_pressed() -> void:

@@ -1,62 +1,103 @@
-[gd_scene load_steps=2 format=3 uid="uid://dmv7g62a5b1yo"]
+[gd_scene load_steps=3 format=3 uid="uid://dmv7g62a5b1yo"]
 
 [ext_resource type="Script" path="res://scripts/ui/UnitCard.gd" id="1_card"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_warning"]
+bg_color = Color(0.16, 0.025, 0.04, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.96, 0.24, 0.32, 1)
+content_margin_left = 4.0
+content_margin_top = 3.0
+content_margin_right = 4.0
+content_margin_bottom = 3.0
+
 [node name="UnitCard" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 90)
+custom_minimum_size = Vector2(0, 116)
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 90.0
+offset_bottom = 116.0
 grow_horizontal = 2
 script = ExtResource("1_card")
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 5
 
-[node name="HBox" type="HBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 4
 
-[node name="InfoBox" type="VBoxContainer" parent="Margin/HBox"]
+[node name="Header" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-alignment = 1
+theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="Margin/HBox/InfoBox"]
-layout_mode = 2
-
-[node name="NameLabel" type="Label" parent="Margin/HBox/InfoBox/Header"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 15
-text = "Unit Name"
-
-[node name="CountLabel" type="Label" parent="Margin/HBox/InfoBox/Header"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
-theme_override_font_sizes/font_size = 15
-text = "x0"
-
-[node name="DescLabel" type="Label" parent="Margin/HBox/InfoBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
-theme_override_font_sizes/font_size = 11
-text = "Unit description goes here."
-
-[node name="StatLabel" type="Label" parent="Margin/HBox/InfoBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.71, 0.26, 1)
-theme_override_font_sizes/font_size = 12
-text = "+1.0 TFLOPs | -0.5 kW | -0.5 kW-th"
-
-[node name="BuyButton" type="Button" parent="Margin/HBox"]
-custom_minimum_size = Vector2(110, 60)
+[node name="IconRect" type="TextureRect" parent="Margin/VBox/Header"]
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 13
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Unit Name"
+text_overrun_behavior = 3
+
+[node name="CountLabel" type="Label" parent="Margin/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 11
+text = "x0"
+
+[node name="DescLabel" type="Label" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
+theme_override_font_sizes/font_size = 8
+text = "Unit description goes here."
+autowrap_mode = 2
+max_lines_visible = 2
+text_overrun_behavior = 3
+
+[node name="WarningPanel" type="PanelContainer" parent="Margin/VBox"]
+visible = false
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_warning")
+
+[node name="WarningLabel" type="Label" parent="Margin/VBox/WarningPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "WARNING: PURCHASE WILL EXCEED POWER CAPACITY"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="StatLabel" type="Label" parent="Margin/VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.96, 0.71, 0.26, 1)
+theme_override_font_sizes/font_size = 8
+text = "+1.0 TFLOPs | -0.5 kW | -0.5 kW-th"
+autowrap_mode = 2
+max_lines_visible = 2
+
+[node name="BuyButton" type="Button" parent="Margin/VBox/Footer"]
+custom_minimum_size = Vector2(82, 44)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 9
 text = "BUY +1
 $10.00"

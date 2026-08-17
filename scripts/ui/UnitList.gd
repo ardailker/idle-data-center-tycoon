@@ -2,6 +2,7 @@ extends VBoxContainer
 
 const UnitCardScene = preload("res://scenes/ui/UnitCard.tscn")
 
+@onready var facility_tap_panel: PanelContainer = $FacilityTapPanel
 @onready var it_tab_btn: Button = $Controls/CategoryTabs/ITTabBtn
 @onready var elec_tab_btn: Button = $Controls/CategoryTabs/ElecTabBtn
 @onready var mech_tab_btn: Button = $Controls/CategoryTabs/MechTabBtn
@@ -17,6 +18,7 @@ var current_buy_multiplier: int = 1 # 1, 10, -1 (MAX)
 var active_card_nodes: Array[Node] = []
 
 func _ready() -> void:
+	facility_tap_panel.job_requested.connect(_on_manual_job_requested)
 	it_tab_btn.pressed.connect(func(): _select_category("it"))
 	elec_tab_btn.pressed.connect(func(): _select_category("electrical"))
 	mech_tab_btn.pressed.connect(func(): _select_category("mechanical"))
@@ -24,9 +26,36 @@ func _ready() -> void:
 	mult_1_btn.pressed.connect(func(): _select_multiplier(1))
 	mult_10_btn.pressed.connect(func(): _select_multiplier(10))
 	mult_max_btn.pressed.connect(func(): _select_multiplier(-1))
+	GameState.state_updated.connect(_update_facility_tap_panel)
+	GameState.site_changed.connect(func(_tier): _update_facility_tap_panel())
 	
+	_update_facility_tap_panel()
 	_select_category("it")
 	_select_multiplier(1)
+
+func _update_facility_tap_panel() -> void:
+	var tier: int = int(GameState.state.get("site_tier", 1))
+	var site: Dictionary = GameState.sites_dict.get(tier, {})
+	var reward: float = Economy.calculate_manual_job_reward(
+		GameState.revenue_per_sec,
+		GameState.get_manual_job_reward_seconds()
+	)
+	facility_tap_panel.set_job_state(
+		tier,
+		String(site.get("name", "Data Center")),
+		reward,
+		int(floor(GameState.manual_job_charges)),
+		int(GameState.get_manual_job_max_charges())
+	)
+
+func _on_manual_job_requested(click_position: Vector2) -> void:
+	var reward: float = GameState.claim_manual_job()
+	if reward <= 0.0:
+		return
+	SoundManager.play_cash()
+	SoundManager.play_haptic(10)
+	facility_tap_panel.show_job_feedback(reward, click_position)
+	_update_facility_tap_panel()
 
 func _select_category(cat: String) -> void:
 	current_category = cat

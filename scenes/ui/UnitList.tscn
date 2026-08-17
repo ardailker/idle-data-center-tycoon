@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c6f3y7kx8n0ap"]
+[gd_scene load_steps=3 format=3 uid="uid://c6f3y7kx8n0ap"]
 
 [ext_resource type="Script" path="res://scripts/ui/UnitList.gd" id="1_unitlist"]
+[ext_resource type="PackedScene" path="res://scenes/ui/FacilityTapPanel.tscn" id="2_facility_tap"]
 
 [node name="UnitList" type="VBoxContainer"]
 anchors_preset = 15
@@ -10,12 +11,15 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 script = ExtResource("1_unitlist")
 
-[node name="Controls" type="HBoxContainer" parent="."]
+[node name="FacilityTapPanel" parent="." instance=ExtResource("2_facility_tap")]
 layout_mode = 2
-theme_override_constants/separation = 8
+
+[node name="Controls" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="CategoryTabs" type="HBoxContainer" parent="Controls"]
 layout_mode = 2
@@ -25,41 +29,42 @@ theme_override_constants/separation = 4
 [node name="ITTabBtn" type="Button" parent="Controls/CategoryTabs"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 9
 text = "IT SYSTEMS"
 
 [node name="ElecTabBtn" type="Button" parent="Controls/CategoryTabs"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 9
 text = "ELECTRICAL"
 
 [node name="MechTabBtn" type="Button" parent="Controls/CategoryTabs"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 9
 text = "MECHANICAL"
 
 [node name="MultiplierControls" type="HBoxContainer" parent="Controls"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
 [node name="Mult1Btn" type="Button" parent="Controls/MultiplierControls"]
-custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 9
 text = "1x"
 
 [node name="Mult10Btn" type="Button" parent="Controls/MultiplierControls"]
-custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 9
 text = "10x"
 
 [node name="MultMaxBtn" type="Button" parent="Controls/MultiplierControls"]
-custom_minimum_size = Vector2(46, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 9
 text = "MAX"
 
 [node name="Scroll" type="ScrollContainer" parent="."]
@@ -71,4 +76,4 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5

@@ -2,6 +2,7 @@ extends PanelContainer
 
 @onready var time_label: Label = $Margin/VBox/TimeLabel
 @onready var earnings_label: Label = $Margin/VBox/EarningsLabel
+@onready var efficiency_label: Label = $Margin/VBox/EfficiencyLabel
 @onready var claim_btn: Button = $Margin/VBox/Actions/ClaimBtn
 @onready var double_btn: Button = $Margin/VBox/Actions/DoubleBtn
 
@@ -12,12 +13,16 @@ func _ready() -> void:
 	SaveManager.offline_earnings_calculated.connect(_on_offline_earnings)
 	claim_btn.pressed.connect(_on_claim_pressed)
 	double_btn.pressed.connect(_on_double_pressed)
+	SaveManager.call_deferred("present_pending_offline_earnings")
 
 func _on_offline_earnings(data: Dictionary) -> void:
 	offline_data = data
 	var effective_sec: int = int(data.get("effective_seconds", 0))
 	var cap_sec: int = int(data.get("offline_cap", 7200))
 	var rev: float = float(data.get("revenue", 0.0))
+	var offline_rate: float = float(data.get("offline_rate", 0.50))
+	var pue_bonus: float = float(data.get("pue_bonus", 0.0))
+	var uptime_bonus: float = float(data.get("uptime_bonus", 0.0))
 	
 	var mins: int = effective_sec / 60
 	var hours: int = mins / 60
@@ -25,6 +30,11 @@ func _on_offline_earnings(data: Dictionary) -> void:
 	
 	time_label.text = "You were offline for %dh %dm (Cap: %dh)" % [hours, rem_mins, cap_sec / 3600]
 	earnings_label.text = "+$%s" % Economy.format_magnitude(rev)
+	efficiency_label.text = "OFFLINE EFFICIENCY: %.0f%%\nPUE BONUS +%.0f%%  |  UP BONUS +%.0f%%" % [
+		offline_rate * 100.0,
+		pue_bonus * 100.0,
+		uptime_bonus * 100.0
+	]
 	visible = true
 
 func _on_claim_pressed() -> void:

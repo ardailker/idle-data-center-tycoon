@@ -1,0 +1,46 @@
+{
+  "prestige": {
+    "revenue_requirement": 1000000.0,
+    "base_tokens": 12
+  },
+  "economy": {
+    "revenue_multiplier": 1.72
+  },
+  "manual_jobs": {
+    "base_reward_seconds": 0.25,
+    "base_max_charges": 5,
+    "base_regen_per_second": 4.0,
+    "upgrades": [
+      {
+        "id": "contract_optimizer",
+        "name": "Contract Optimizer",
+        "description": "Improves the payout from every completed job.",
+        "effect_type": "reward_multiplier",
+        "effect_per_level": 0.05,
+        "base_cost": 250.0,
+        "cost_growth": 7.0,
+        "max_level": 5
+      },
+      {
+        "id": "queue_expansion",
+        "name": "Queue Expansion",
+        "description": "Stores more jobs for short bursts of active play.",
+        "effect_type": "max_charges",
+        "effect_per_level": 2.0,
+        "base_cost": 500.0,
+        "cost_growth": 8.0,
+        "max_level": 4
+      },
+      {
+        "id": "dispatch_firmware",
+        "name": "Dispatch Firmware",
+        "description": "Recharges available jobs more quickly.",
+        "effect_type": "regen_multiplier",
+        "effect_per_level": 0.05,
+        "base_cost": 1000.0,
+        "cost_growth": 8.0,
+        "max_level": 4
+      }
+    ]
+  }
+}

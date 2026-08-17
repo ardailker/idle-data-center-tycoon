@@ -16,31 +16,32 @@ color = Color(0, 0, 0, 0.823529)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="TitleLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 14
 text = "SYSTEM SETTINGS & STORE"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="AudioHeader" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 9
 text = "AUDIO & HARDWARE FEEDBACK"
 
 [node name="AudioSection" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 4
 
 [node name="SFXCheck" type="CheckBox" parent="Margin/VBox/AudioSection"]
 layout_mode = 2
@@ -63,7 +64,7 @@ text = "HAPTICS"
 [node name="IAPHeader" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.58, 0.64, 0.72, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 9
 text = "IN-APP PURCHASES & UPGRADES"
 
 [node name="IAPSection" type="VBoxContainer" parent="Margin/VBox"]
@@ -71,17 +72,19 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="RemoveAdsBtn" type="Button" parent="Margin/VBox/IAPSection"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 9
+autowrap_mode = 2
 text = "REMOVE ADS ($2.99)
 No Interstitials + 4h Offline Cap"
 
 [node name="StarterPackBtn" type="Button" parent="Margin/VBox/IAPSection"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 9
+autowrap_mode = 2
 text = "STARTER PACK ($4.99)
 10 TT + 24h 2X Revenue Multiplier"
 
@@ -89,14 +92,16 @@ text = "STARTER PACK ($4.99)
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.53, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 8
+autowrap_mode = 2
 text = "SMALL TECH VAULT ($4.99) — 15 TT"
 
 [node name="TTLargeBtn" type="Button" parent="Margin/VBox/IAPSection"]
 custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.53, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 8
+autowrap_mode = 2
 text = "HYPERSCALE TECH VAULT ($19.99) — 75 TT"
 
 [node name="MetaSection" type="HBoxContainer" parent="Margin/VBox"]
@@ -106,24 +111,24 @@ theme_override_constants/separation = 8
 [node name="RestoreBtn" type="Button" parent="Margin/VBox/MetaSection"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 8
 text = "RESTORE PURCHASES"
 
 [node name="PrivacyBtn" type="Button" parent="Margin/VBox/MetaSection"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 8
 text = "PRIVACY POLICY"
 
 [node name="CreditsLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.45, 0.52, 1)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 8
 text = "Idle Data Center Tycoon v0.1.0\nDeveloped by SUYAPI Engineering"
 horizontal_alignment = 1
 
 [node name="CloseBtn" type="Button" parent="Margin/VBox"]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 text = "CLOSE SETTINGS"

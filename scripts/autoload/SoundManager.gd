@@ -62,6 +62,10 @@ func update_audio_settings() -> void:
 		if ambient_player.playing:
 			ambient_player.stop()
 
+func play_haptic(duration_ms: int = 25) -> void:
+	if GameState and bool(GameState.state.get("settings", {}).get("haptics_enabled", true)):
+		Input.vibrate_handheld(duration_ms)
+
 func _setup_ambient_loop() -> void:
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_8_BITS
@@ -83,7 +87,7 @@ func _setup_ambient_loop() -> void:
 	
 	stream.data = data
 	ambient_player.stream = stream
-	if _is_music_enabled() and not OS.has_feature("template"):
+	if _is_music_enabled():
 		ambient_player.play()
 
 func _play_synth_sound(data: PackedByteArray) -> void:

@@ -155,20 +155,63 @@ static func calculate_compute_rate(unit_counts: Dictionary, units_dict: Dictiona
 	return base_compute * max(tech_compute_mult, 0.0)
 
 
-static func calculate_uptime(unit_counts: Dictionary, units_dict: Dictionary, tech_uptime_bonus: float = 0.0, trip_ratio: float = 0.0) -> float:
-	# Base uptime starts at 99.0% (0.99)
-	var base_uptime: float = 0.99
+static func calculate_uptime_details(
+	unit_counts: Dictionary,
+	units_dict: Dictionary,
+	tech_uptime_bonus: float = 0.0,
+	trip_ratio: float = 0.0,
+	power_throttle: float = 1.0,
+	cooling_capacity_ratio: float = 1.0
+) -> Dictionary:
+	var reliability_bonus: float = 0.0
 	for unit_id in unit_counts:
 		var count: int = unit_counts[unit_id]
 		if count <= 0:
 			continue
 		var unit: Dictionary = units_dict.get(unit_id, {})
 		if unit.get("category", "") == "electrical":
-			base_uptime += float(unit.get("uptime_bonus", 0.0)) * float(count)
-	base_uptime += tech_uptime_bonus
-	# High penalty if racks are tripping
-	var penalty: float = trip_ratio * 0.15
-	return clamp(base_uptime - penalty, 0.50, 0.99999)
+			reliability_bonus += float(unit.get("uptime_bonus", 0.0)) * float(count)
+	reliability_bonus = clamp(reliability_bonus + tech_uptime_bonus, 0.0, 0.00999)
+	var power_penalty: float = (1.0 - clamp(power_throttle, 0.0, 1.0)) * 0.10
+	var cooling_penalty: float = (1.0 - clamp(cooling_capacity_ratio, 0.0, 1.0)) * 0.08
+	var trip_penalty: float = clamp(trip_ratio, 0.0, 1.0) * 0.15
+	return {
+		"uptime": clamp(0.99 + reliability_bonus - power_penalty - cooling_penalty - trip_penalty, 0.50, 0.99999),
+		"reliability_bonus": reliability_bonus,
+		"power_penalty": power_penalty,
+		"cooling_penalty": cooling_penalty,
+		"trip_penalty": trip_penalty
+	}
+
+
+static func calculate_uptime(
+	unit_counts: Dictionary,
+	units_dict: Dictionary,
+	tech_uptime_bonus: float = 0.0,
+	trip_ratio: float = 0.0,
+	power_throttle: float = 1.0,
+	cooling_capacity_ratio: float = 1.0
+) -> float:
+	return float(calculate_uptime_details(
+		unit_counts,
+		units_dict,
+		tech_uptime_bonus,
+		trip_ratio,
+		power_throttle,
+		cooling_capacity_ratio
+	)["uptime"])
+
+
+static func calculate_fuel_cost_per_sec(unit_counts: Dictionary, units_dict: Dictionary) -> float:
+	var total: float = 0.0
+	for unit_id in unit_counts:
+		var count: int = int(unit_counts[unit_id])
+		if count <= 0:
+			continue
+		var unit: Dictionary = units_dict.get(unit_id, {})
+		if unit.get("category", "") == "electrical":
+			total += float(unit.get("fuel_cost_per_sec", 0.0)) * float(count)
+	return total
 
 
 static func calculate_revenue_per_sec(
@@ -184,29 +227,60 @@ static func calculate_revenue_per_sec(
 	return compute_rate * throttle * contract_rate * uptime_mult * site_mult * tech_revenue_mult * boost_mult
 
 
-static func calculate_offline_earnings(revenue_per_sec: float, last_seen: int, now: int, remove_ads_owned: bool = false) -> Dictionary:
+static func calculate_manual_job_reward(revenue_per_sec: float, reward_seconds: float = 0.25) -> float:
+	return max(revenue_per_sec * max(reward_seconds, 0.0), 1.0)
+
+
+static func calculate_offline_efficiency(pue: float, uptime: float) -> Dictionary:
+	var pue_score: float = clamp((2.0 - pue) / 1.0, 0.0, 1.0)
+	var uptime_score: float = clamp((uptime - 0.99) / 0.00999, 0.0, 1.0)
+	var pue_bonus: float = pue_score * 0.25
+	var uptime_bonus: float = uptime_score * 0.15
+	return {
+		"rate": clamp(0.50 + pue_bonus + uptime_bonus, 0.50, 0.90),
+		"pue_bonus": pue_bonus,
+		"uptime_bonus": uptime_bonus
+	}
+
+
+static func calculate_offline_earnings(
+	revenue_per_sec: float,
+	last_seen: int,
+	now: int,
+	remove_ads_owned: bool = false,
+	pue: float = 2.0,
+	uptime: float = 0.99
+) -> Dictionary:
 	var elapsed_seconds: float = float(max(now - last_seen, 0))
 	var offline_cap: float = 7200.0 # 2 hours default
 	if remove_ads_owned:
 		offline_cap += 7200.0 # 4 hours total
 	
 	var effective_seconds: float = clamp(elapsed_seconds, 0.0, offline_cap)
-	# 50% rate offline (§5)
-	var base_revenue: float = revenue_per_sec * effective_seconds * 0.5
+	var efficiency: Dictionary = calculate_offline_efficiency(pue, uptime)
+	var offline_rate: float = float(efficiency["rate"])
+	var base_revenue: float = revenue_per_sec * effective_seconds * offline_rate
 	return {
 		"elapsed_seconds": elapsed_seconds,
 		"effective_seconds": effective_seconds,
 		"offline_cap": offline_cap,
-		"revenue": base_revenue
+		"revenue": base_revenue,
+		"offline_rate": offline_rate,
+		"pue_bonus": efficiency["pue_bonus"],
+		"uptime_bonus": efficiency["uptime_bonus"],
+		"pue": pue,
+		"uptime": uptime
 	}
 
 
-static func calculate_prestige_tokens(lifetime_revenue_this_site: float) -> int:
-	# Requires lifetime_revenue_this_site >= 1e9 before unlocking
-	if lifetime_revenue_this_site < 1e9:
+static func calculate_prestige_tokens(
+	lifetime_revenue_this_site: float,
+	revenue_requirement: float,
+	base_tokens: int
+) -> int:
+	if revenue_requirement <= 0.0 or lifetime_revenue_this_site < revenue_requirement:
 		return 0
-	# tokens_earned = floor(12 * pow(lifetime_revenue_this_site / 1e9, 0.5))
-	return int(floor(12.0 * sqrt(lifetime_revenue_this_site / 1e9)))
+	return int(floor(float(base_tokens) * sqrt(lifetime_revenue_this_site / revenue_requirement)))
 
 
 static func calculate_tech_multiplier(

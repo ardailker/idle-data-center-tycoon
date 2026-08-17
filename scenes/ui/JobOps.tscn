@@ -1,0 +1,61 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/JobOps.gd" id="1_job_ops"]
+
+[node name="JobOps" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+script = ExtResource("1_job_ops")
+
+[node name="Header" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 5
+
+[node name="VBox" type="VBoxContainer" parent="Header/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Header/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 1, 0.56, 1)
+theme_override_font_sizes/font_size = 11
+text = "ACTIVE JOB UPGRADES"
+horizontal_alignment = 1
+
+[node name="Summary" type="Label" parent="Header/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 8
+text = "TAP +$1.00 | QUEUE 5/5 | 4.0/s"
+horizontal_alignment = 1
+
+[node name="ResetNote" type="Label" parent="Header/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
+theme_override_font_sizes/font_size = 7
+text = "CASH UPGRADES RESET ON SITE SALE"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Cards" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
