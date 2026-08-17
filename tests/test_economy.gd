@@ -68,9 +68,11 @@ var sample_units: Dictionary = {
 
 func before_all() -> void:
 	SaveManager.save_path = "user://test_savegame.json"
+	_remove_test_save_files()
 	gut.p("Running Economy Unit Tests Suite (M1)...")
 
 func after_all() -> void:
+	_remove_test_save_files()
 	SaveManager.save_path = SaveManager.DEFAULT_SAVE_PATH
 
 func test_unit_cost_formula() -> void:
@@ -542,11 +544,42 @@ func test_pending_offline_earnings_can_only_be_claimed_once() -> void:
 	assert_almost_eq(SaveManager.claim_offline_earnings(1.0), 100.0, 0.001, "Pending earnings are awarded")
 	assert_almost_eq(SaveManager.claim_offline_earnings(1.0), 0.0, 0.001, "Claimed earnings cannot be awarded twice")
 
+func test_invalid_primary_save_recovers_last_known_good_backup() -> void:
+	_remove_test_save_files()
+	SaveManager.pending_offline_data.clear()
+	GameState.state["pending_offline_data"] = {}
+	GameState.state["cash"] = 111.0
+	assert_true(SaveManager.save_game(), "First atomic save succeeds")
+	GameState.state["cash"] = 222.0
+	assert_true(SaveManager.save_game(), "Second atomic save succeeds and rotates a backup")
+	assert_true(FileAccess.file_exists(SaveManager.get_backup_save_path()), "Previous valid save is retained as backup")
+
+	var corrupt_file := FileAccess.open(SaveManager.save_path, FileAccess.WRITE)
+	assert_not_null(corrupt_file, "Primary save can be opened for corruption test")
+	corrupt_file.store_string("{not valid json")
+	corrupt_file.close()
+
+	GameState.state["cash"] = 0.0
+	watch_signals(SaveManager)
+	SaveManager.load_game()
+	assert_almost_eq(float(GameState.state["cash"]), 111.0, 0.001, "Backup restores the last known-good cash value")
+	assert_signal_emitted(SaveManager, "save_recovered_from_backup")
+	assert_true(bool(SaveManager._read_save_file(SaveManager.save_path).get("ok", false)), "Recovered primary save is valid JSON")
+
+func test_rewarded_revenue_boost_lasts_ten_minutes() -> void:
+	GameState.state["boost_end_time"] = 0
+	GameState.state["rewarded_boost_day"] = Time.get_date_string_from_system()
+	GameState.state["rewarded_boost_count"] = 0
+	assert_true(GameState.activate_rewarded_boost(), "Rewarded boost activates")
+	assert_true(GameState.boost_time_remaining > 598.0, "Rewarded boost has approximately 10 minutes remaining")
+	assert_true(GameState.boost_time_remaining <= 600.0, "Rewarded boost does not exceed 10 minutes")
+
 func test_v1_save_migration_preserves_site_progress() -> void:
 	var migrated := SaveManager._migrate_save_data({"schema_version": 1, "site_tier": 3}, 1)
-	assert_eq(int(migrated["schema_version"]), 3, "Save migrates to schema 3")
+	assert_eq(int(migrated["schema_version"]), 4, "Save migrates to schema 4")
 	assert_eq(migrated["unlocked_site_tiers"], [1, 2, 3], "Previously reached sites remain unlocked")
 	assert_eq(migrated["job_upgrade_levels"], {}, "Existing saves receive empty site-specific job upgrades")
+	assert_true(bool(migrated["onboarding_completed"]), "Existing players do not receive first-run onboarding")
 	var normalized := SaveManager._migrate_save_data({
 		"schema_version": 3,
 		"site_tier": 2.0,
@@ -558,6 +591,7 @@ func test_v1_save_migration_preserves_site_progress() -> void:
 	assert_eq(normalized["unlocked_site_tiers"], [1, 2], "Duplicate float and integer tiers are normalized")
 	assert_eq(normalized["unit_counts"]["rack_1u"], 3, "JSON unit counts are normalized to integers")
 	assert_eq(normalized["job_upgrade_levels"]["contract_optimizer"], 2, "Job upgrade levels normalize to integers")
+	assert_true(bool(normalized["onboarding_completed"]), "Schema 3 players migrate past onboarding")
 
 func test_iap_purchases_and_offline_cap() -> void:
 	GameState.state["tech_tokens"] = 0
@@ -599,3 +633,8 @@ func test_sound_manager_synth() -> void:
 	SoundManager.play_cash()
 	SoundManager.update_audio_settings()
 	assert_true(true, "SoundManager executed all procedural audio without errors")
+
+func _remove_test_save_files() -> void:
+	for path in [SaveManager.save_path, SaveManager.get_backup_save_path(), SaveManager.get_temporary_save_path()]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

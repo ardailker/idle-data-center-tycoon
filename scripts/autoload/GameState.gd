@@ -1,5 +1,7 @@
 extends Node
 
+const REWARDED_BOOST_DURATION_SECONDS: float = 600.0
+
 # Signals
 signal state_updated()
 signal currency_changed(cash: float, tech_tokens: int)
@@ -23,7 +25,7 @@ var balance_data: Dictionary = {}
 
 # Active State Structure
 var state: Dictionary = {
-	"schema_version": 3,
+	"schema_version": 4,
 	"cash": 15.0, # Initial starting cash for first rack
 	"tech_tokens": 0,
 	"site_tier": 1,
@@ -60,6 +62,7 @@ var state: Dictionary = {
 	"last_interstitial_time": 0,
 	"pending_offline_data": {},
 	"last_save_time": 0,
+	"onboarding_completed": false,
 	"settings": {
 		"sfx_enabled": true,
 		"music_enabled": true,
@@ -457,7 +460,7 @@ func activate_rewarded_boost() -> bool:
 	if not can_activate_rewarded_boost():
 		return false
 	state["rewarded_boost_count"] = int(state.get("rewarded_boost_count", 0)) + 1
-	activate_revenue_boost(240.0)
+	activate_revenue_boost(REWARDED_BOOST_DURATION_SECONDS)
 	return true
 
 func get_rewarded_boosts_remaining() -> int:

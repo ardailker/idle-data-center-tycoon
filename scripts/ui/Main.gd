@@ -46,7 +46,7 @@ func _on_boost_pressed() -> void:
 	if not GameState.can_activate_rewarded_boost():
 		_update_boost_button()
 		return
-	# Rewarded ad boost: 2x revenue for 4 min (240s) (§6.1)
+	# Rewarded ad boost: 2x revenue for 10 min (§6.1)
 	Ads.show_rewarded_ad("boost_button_2x", func():
 		GameState.activate_rewarded_boost()
 		_update_boost_button()
@@ -62,7 +62,8 @@ func _update_boost_button() -> void:
 		boost_btn.text = "BOOST LIMIT REACHED"
 		boost_btn.disabled = true
 	else:
-		boost_btn.text = "2X BOOST 4 MIN  |  %d LEFT" % GameState.get_rewarded_boosts_remaining()
+		var duration_minutes: int = int(GameState.REWARDED_BOOST_DURATION_SECONDS / 60.0)
+		boost_btn.text = "2X BOOST %d MIN  |  %d LEFT" % [duration_minutes, GameState.get_rewarded_boosts_remaining()]
 		boost_btn.disabled = false
 
 func _format_boost_time(seconds: float) -> String:

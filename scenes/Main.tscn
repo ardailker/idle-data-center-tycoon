@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://df5w3s8mty10c"]
+[gd_scene load_steps=10 format=3 uid="uid://df5w3s8mty10c"]
 
 [ext_resource type="Script" path="res://scripts/ui/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://b8xq4a3yt6w5m" path="res://scenes/ui/TopBar.tscn" id="2_topbar"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://cx6y8v2qg9m2p" path="res://scenes/ui/ReturnScreen.tscn" id="7_return"]
 [ext_resource type="PackedScene" uid="uid://dg7y8k4rt1w3p" path="res://scenes/ui/Settings.tscn" id="8_settings"]
 [ext_resource type="PackedScene" path="res://scenes/ui/JobOps.tscn" id="9_job_ops"]
+[ext_resource type="PackedScene" path="res://scenes/ui/Onboarding.tscn" id="10_onboarding"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -112,12 +113,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.96, 0.62, 0.04, 1)
 theme_override_font_sizes/font_size = 9
-text = "2X BOOST 4 MIN  |  6 LEFT"
+text = "2X BOOST 10 MIN  |  6 LEFT"
 
 [node name="ReturnScreen" parent="." instance=ExtResource("7_return")]
 visible = false
 layout_mode = 1
 
 [node name="Settings" parent="." instance=ExtResource("8_settings")]
+visible = false
+layout_mode = 1
+
+[node name="Onboarding" parent="." instance=ExtResource("10_onboarding")]
 visible = false
 layout_mode = 1

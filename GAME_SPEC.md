@@ -211,7 +211,7 @@ tokens_earned = floor(12 * pow(lifetime_revenue_this_site / 1e6, 0.5))
 | Placement | Reward | Cap |
 |---|---|---|
 | Return screen | 2x offline collection | 1 per return |
-| Boost button (always visible) | 2x revenue, 4 min | 6/day |
+| Boost button (always visible) | 2x revenue, 10 min | 6/day |
 | Event card | Instant fix / free repair | per event |
 | Site Sale screen | +25% Tech Tokens from this sale | 1 per sale |
 
@@ -289,7 +289,7 @@ Visual direction: retro pixel-art terminal aesthetic (chosen 2026-08-17, superse
 
 ## 9. Scope lock
 
-**In v1:** everything in §4 exactly as listed — 9 units, 5 sites, 20 tech nodes, 5 events, 6 screens.
+**In v1:** everything in §4 exactly as listed — 15 units, 5 sites, 20 tech nodes, 5 events, 6 screens.
 
 **Explicitly out of v1 (do not build, do not "prepare for"):** multiplayer, leaderboards, cloud save, daily quests, seasonal events, achievements, a tutorial beyond 3 tooltips, localization beyond English + Turkish, iOS-specific features, custom shaders, sound design beyond 6 UI sounds and one ambient loop.
 
@@ -303,7 +303,7 @@ If a feature is not in §4, the answer is no. Ship, then decide from data.
 |---|---|---|---|---|
 | M0 | Setup | Godot 4.6 project, git repo, Android export template, `data/*.json` stubs, GUT installed | `godot --headless --export-debug Android build.apk` succeeds and runs on a phone | 2–3 h |
 | M1 | Economy core | `Economy.gd` + `test_economy.gd`, no UI | All §5 formulas pass unit tests; a headless sim of 2 h of play produces sane numbers | 8–12 h |
-| M2 | Playable loop | Facility screen, 9 units, buy/upgrade, throttle + thermal trip, save/load, offline | You can play 45 min and hit a real power/cooling crunch that you must solve | 15–20 h |
+| M2 | Playable loop | Facility screen, 15 units, buy/upgrade, throttle + thermal trip, save/load, offline | You can play 45 min and hit a real power/cooling crunch that you must solve | 15–20 h |
 | M3 | Meta | Site Sale, tech tree, 5 sites, 20 nodes, events | First prestige reachable in 20–30 min; tech tree fully navigable | 15–20 h |
 | M4 | Monetize + ship | AdMob, IAP, GameAnalytics, 5 UI sounds, store listing, privacy policy | Test ads serve; test purchase completes; analytics events land in dashboard | 15–20 h |
 

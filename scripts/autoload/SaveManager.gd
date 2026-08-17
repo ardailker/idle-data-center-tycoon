@@ -1,11 +1,14 @@
 extends Node
 
 const DEFAULT_SAVE_PATH: String = "user://savegame.json"
-const CURRENT_SCHEMA_VERSION: int = 3
+const CURRENT_SCHEMA_VERSION: int = 4
+const BACKUP_SUFFIX: String = ".bak"
+const TEMP_SUFFIX: String = ".tmp"
 
 var save_path: String = DEFAULT_SAVE_PATH
 
 signal offline_earnings_calculated(offline_data: Dictionary)
+signal save_recovered_from_backup()
 
 var pending_offline_data: Dictionary = {}
 
@@ -18,39 +21,48 @@ func _notification(what: int) -> void:
 	elif what == NOTIFICATION_APPLICATION_RESUMED:
 		call_deferred("_calculate_and_present_after_resume")
 
-func save_game() -> void:
+func save_game() -> bool:
 	if not GameState:
-		return
+		return false
 	
 	GameState.state["last_save_time"] = int(Time.get_unix_time_from_system())
 	GameState.state["schema_version"] = CURRENT_SCHEMA_VERSION
-	
-	var file := FileAccess.open(save_path, FileAccess.WRITE)
-	if file:
-		var json_string := JSON.stringify(GameState.state, "\t")
-		file.store_string(json_string)
-		file.close()
+
+	var temp_path := get_temporary_save_path()
+	var json_string := JSON.stringify(GameState.state, "\t")
+	if not _write_text_file(temp_path, json_string):
+		push_error("Failed to write temporary save file: %s" % temp_path)
+		return false
+
+	var verification := _read_save_file(temp_path)
+	if not bool(verification.get("ok", false)):
+		_remove_file_if_present(temp_path)
+		push_error("Temporary save verification failed: %s" % temp_path)
+		return false
+
+	if not _promote_temporary_save(temp_path):
+		return false
+	return true
 
 func load_game() -> void:
-	if not FileAccess.file_exists(save_path):
+	var backup_path := get_backup_save_path()
+	if not FileAccess.file_exists(save_path) and not FileAccess.file_exists(backup_path):
 		# Fresh game start
 		_calculate_offline(0)
 		return
-	
-	var file := FileAccess.open(save_path, FileAccess.READ)
-	if not file:
-		return
-	
-	var content := file.get_as_text()
-	file.close()
-	
-	var json := JSON.new()
-	var err := json.parse(content)
-	if err != OK or not (json.data is Dictionary):
-		push_error("Failed to parse save game JSON.")
-		return
-	
-	var loaded_data: Dictionary = json.data
+
+	var load_result := _read_save_file(save_path)
+	if not bool(load_result.get("ok", false)):
+		var backup_result := _read_save_file(backup_path)
+		if not bool(backup_result.get("ok", false)):
+			push_error("Failed to load both the primary and backup save files.")
+			return
+		load_result = backup_result
+		_restore_primary_from_backup()
+		save_recovered_from_backup.emit()
+		push_warning("Primary save was invalid; progress was recovered from backup.")
+
+	var loaded_data: Dictionary = load_result["data"]
 	var version: int = int(loaded_data.get("schema_version", 1))
 	var migrated_data := _migrate_save_data(loaded_data, version)
 	var current_tier: int = int(migrated_data.get("site_tier", 1))
@@ -94,6 +106,11 @@ func _migrate_save_data(data: Dictionary, from_version: int) -> Dictionary:
 	if from_version < 3:
 		result["job_upgrade_levels"] = {}
 		result["schema_version"] = 3
+	if from_version < 4:
+		# Existing players have already learned the current loop. Only genuinely
+		# new games should show the three-tip onboarding sequence.
+		result["onboarding_completed"] = true
+		result["schema_version"] = 4
 
 	# JSON numbers load as floats. Normalize catalog identifiers and remove
 	# duplicate tiers so Dictionary lookups always use the integer tier keys.
@@ -120,7 +137,83 @@ func _migrate_save_data(data: Dictionary, from_version: int) -> Dictionary:
 	for upgrade_id in result.get("job_upgrade_levels", {}):
 		normalized_job_levels[String(upgrade_id)] = max(int(result["job_upgrade_levels"][upgrade_id]), 0)
 	result["job_upgrade_levels"] = normalized_job_levels
+	result["schema_version"] = CURRENT_SCHEMA_VERSION
 	return result
+
+func get_backup_save_path() -> String:
+	return save_path + BACKUP_SUFFIX
+
+func get_temporary_save_path() -> String:
+	return save_path + TEMP_SUFFIX
+
+func _write_text_file(path: String, content: String) -> bool:
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if not file:
+		return false
+	file.store_string(content)
+	file.flush()
+	file.close()
+	return true
+
+func _read_save_file(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {"ok": false, "data": {}}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if not file:
+		return {"ok": false, "data": {}}
+	var content := file.get_as_text()
+	file.close()
+	var json := JSON.new()
+	var err := json.parse(content)
+	if err != OK or not (json.data is Dictionary):
+		return {"ok": false, "data": {}}
+	return {"ok": true, "data": json.data}
+
+func _promote_temporary_save(temp_path: String) -> bool:
+	var primary_absolute := ProjectSettings.globalize_path(save_path)
+	var backup_absolute := ProjectSettings.globalize_path(get_backup_save_path())
+	var temp_absolute := ProjectSettings.globalize_path(temp_path)
+
+	_remove_file_if_present(get_backup_save_path())
+	if FileAccess.file_exists(save_path):
+		var backup_error := DirAccess.rename_absolute(primary_absolute, backup_absolute)
+		if backup_error != OK:
+			_remove_file_if_present(temp_path)
+			push_error("Failed to rotate the previous save to backup (error %d)." % backup_error)
+			return false
+
+	var promote_error := DirAccess.rename_absolute(temp_absolute, primary_absolute)
+	if promote_error == OK:
+		return true
+
+	# If promotion fails after rotation, restore the last known-good save.
+	if not FileAccess.file_exists(save_path) and FileAccess.file_exists(get_backup_save_path()):
+		DirAccess.rename_absolute(backup_absolute, primary_absolute)
+	_remove_file_if_present(temp_path)
+	push_error("Failed to promote the temporary save (error %d)." % promote_error)
+	return false
+
+func _restore_primary_from_backup() -> void:
+	var recovery_temp_path := get_temporary_save_path()
+	_remove_file_if_present(recovery_temp_path)
+	var copy_error := DirAccess.copy_absolute(
+		ProjectSettings.globalize_path(get_backup_save_path()),
+		ProjectSettings.globalize_path(recovery_temp_path)
+	)
+	if copy_error != OK:
+		push_warning("Loaded backup, but could not stage primary save recovery (error %d)." % copy_error)
+		return
+	_remove_file_if_present(save_path)
+	var restore_error := DirAccess.rename_absolute(
+		ProjectSettings.globalize_path(recovery_temp_path),
+		ProjectSettings.globalize_path(save_path)
+	)
+	if restore_error != OK:
+		push_warning("Loaded backup, but could not restore the primary save (error %d)." % restore_error)
+
+func _remove_file_if_present(path: String) -> void:
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 func _calculate_offline(last_seen: int) -> Dictionary:
 	if not pending_offline_data.is_empty():
